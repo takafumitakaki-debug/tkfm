@@ -1,0 +1,4 @@
+anthropic>=1.11,<2
+pydantic>=2.7
+requests>=2.32
+ruamel.yaml>=0.18

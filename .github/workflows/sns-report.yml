@@ -1,0 +1,54 @@
+# 毎週月曜の朝に、前週7日間の投稿の反応をまとめたレポートを作る。
+# sns-autopilot/reports/ にコミットし、実行結果の Summary にも表示する。
+name: SNS weekly report
+
+on:
+  schedule:
+    - cron: "53 23 * * 0" # 月曜 08:53 JST
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "集計日数"
+        default: "7"
+
+permissions:
+  contents: write
+
+defaults:
+  run:
+    working-directory: sns-autopilot
+    shell: bash
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: sns-autopilot/requirements.txt
+
+      - run: pip install -r requirements.txt
+
+      - name: Build report
+        env:
+          IG_USER_ID: ${{ secrets.IG_USER_ID }}
+          IG_ACCESS_TOKEN: ${{ secrets.IG_ACCESS_TOKEN }}
+          LINE_CHANNEL_ACCESS_TOKEN: ${{ secrets.LINE_CHANNEL_ACCESS_TOKEN }}
+          GRAPH_API_VERSION: ${{ vars.GRAPH_API_VERSION || 'v23.0' }}
+          SNS_TIMEZONE: ${{ vars.SNS_TIMEZONE || 'Asia/Tokyo' }}
+        run: python -m sns_autopilot report --days "${{ inputs.days || '7' }}" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit report
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add reports/
+          git diff --cached --quiet && exit 0
+          git commit -m "sns: 週次レポート"
+          for i in 1 2 3; do git pull --rebase && git push && exit 0; sleep $((i * 5)); done
+          exit 1

@@ -1,0 +1,28 @@
+# 投稿ファイルの書き方（このファイルはサンプル。ファイル名＝投稿ID でも可）
+id: 2026-10-20-autumn-menu
+
+# draft:    下書き（投稿されない）。本文が空なら generate で AI が書く
+# approved: 承認済み。scheduled_at を過ぎると自動投稿される
+status: draft
+
+# タイムゾーン省略時は SNS_TIMEZONE（既定 Asia/Tokyo）
+scheduled_at: 2026-10-20T11:30:00+09:00
+
+platforms: [instagram, line]
+
+# AI に渡す投稿メモ。事実（日付・価格など）はここに書いたものだけが使われる
+brief: |
+  秋の限定メニュー「きのこと鮭の炊き込みご飯定食」を10/20から提供開始。
+  1,200円（税込）、1日20食限定。きのこは県内の農家さんから仕入れている。
+
+# 画像は https の公開URL（Instagram・LINE のサーバーが取得する）。JPEG 推奨
+# Instagram: 1〜10枚（2枚以上はカルーセル） / LINE: 最大4枚
+images:
+  - https://example.com/images/autumn-menu.jpg
+
+# 空欄なら generate で AI が埋める。手で書いても良い
+caption:
+  instagram: ""
+  line: ""
+
+hashtags: []
