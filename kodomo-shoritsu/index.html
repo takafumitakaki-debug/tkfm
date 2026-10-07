@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>こども積立 勝率ナビ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=BIZ+UDPGothic:wght@400;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: 1カラムの「連絡帳」風ツール。上に条件、中央に勝率表、下に年ごとのグラフと根拠 */
+:root {
+  --bg: #f2f5f3;
+  --paper: #ffffff;
+  --ink: #1d2826;
+  --muted: #5b6b67;
+  --line: #d5dfdb;
+  --accent: #2b5fa8;
+  --accent-soft: #e4ecf7;
+  --good: #1f7a4d;
+  --good-soft: #dff1e7;
+  --bad: #b23a3a;
+  --bad-soft: #f7e2e0;
+  --warn: #8a5a00;
+  --warn-soft: #fbf0d8;
+  --f-display: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif;
+  --f-body: "BIZ UDPGothic", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+  --f-num: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #131a19; --paper: #1b2423; --ink: #e6eeeb; --muted: #9aaba6; --line: #2e3b39;
+    --accent: #7fa8e6; --accent-soft: #1f2b3d; --good: #5cc48f; --good-soft: #17322a;
+    --bad: #e57d7d; --bad-soft: #3a2020; --warn: #e3b55c; --warn-soft: #352a14; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #131a19; --paper: #1b2423; --ink: #e6eeeb; --muted: #9aaba6; --line: #2e3b39;
+  --accent: #7fa8e6; --accent-soft: #1f2b3d; --good: #5cc48f; --good-soft: #17322a;
+  --bad: #e57d7d; --bad-soft: #3a2020; --warn: #e3b55c; --warn-soft: #352a14; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.7; }
+.wrap { max-width: 920px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 56px; display: grid; gap: 22px; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.35; }
+h1 { font-size: clamp(26px, 5vw, 36px); font-weight: 900; letter-spacing: .02em; }
+h2 { font-size: 20px; font-weight: 700; }
+h3 { font-size: 16px; font-weight: 700; }
+p { margin: 0; }
+.lead { color: var(--muted); max-width: 62ch; }
+.num { font-family: var(--f-num); font-variant-numeric: tabular-nums; }
+.eyebrow { font-size: 12px; letter-spacing: .12em; color: var(--accent); font-weight: 700; }
+
+.notice { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); }
+.note { border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; background: var(--paper); display: grid; gap: 4px; }
+.note.warn { background: var(--warn-soft); border-color: transparent; }
+.note.warn h3 { color: var(--warn); }
+.note p { font-size: 14px; }
+
+.panel { background: var(--paper); border: 1px solid var(--line); border-radius: 14px; padding: 20px; display: grid; gap: 16px; min-width: 0; }
+.controls { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+.field { display: grid; gap: 6px; }
+.field label { font-size: 13px; font-weight: 700; color: var(--muted); }
+.field input[type=range] { width: 100%; accent-color: var(--accent); }
+.field .val { font-family: var(--f-display); font-weight: 700; font-size: 22px; }
+.field .val small { font-size: 13px; color: var(--muted); font-weight: 500; margin-left: 4px; }
+select, input[type=number] { font: inherit; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); width: 100%; }
+:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.answer { display: grid; gap: 6px; padding: 18px 20px; border-radius: 14px; background: var(--accent-soft); }
+.answer .big { font-family: var(--f-display); font-weight: 900; font-size: clamp(20px, 4vw, 26px); }
+.answer p { font-size: 14px; }
+
+.tablebox { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; min-width: 640px; }
+th, td { text-align: right; padding: 10px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-size: 12px; color: var(--muted); font-weight: 700; letter-spacing: .04em; }
+th:first-child, td:first-child { text-align: left; }
+tbody tr { cursor: pointer; }
+tbody tr:hover td { background: var(--bg); }
+tbody tr.sel td { background: var(--accent-soft); }
+tbody tr.sel td:first-child { box-shadow: inset 4px 0 0 var(--accent); }
+.aname { font-weight: 700; }
+.asub { display: block; font-size: 12px; color: var(--muted); font-weight: 400; }
+.pill { display: inline-block; font-family: var(--f-num); font-size: 13px; padding: 2px 9px; border-radius: 99px; }
+.pill.g { background: var(--good-soft); color: var(--good); }
+.pill.m { background: var(--warn-soft); color: var(--warn); }
+.pill.b { background: var(--bad-soft); color: var(--bad); }
+.neg { color: var(--bad); }
+.pos { color: var(--good); }
+
+.chartbox { overflow-x: auto; }
+svg text { fill: var(--muted); font-family: var(--f-num); font-size: 11px; }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--muted); }
+.legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; background: var(--c); }
+
+.matrix td.hl { font-weight: 700; }
+.foot { font-size: 13px; color: var(--muted); display: grid; gap: 8px; }
+.foot ul { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; }
+@media (prefers-reduced-motion: no-preference) { .bar { transition: height .25s, y .25s; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header style="display:grid;gap:8px">
+    <div class="eyebrow">子どもの教育資金・長期積立</div>
+    <h1>こども積立 勝率ナビ</h1>
+    <p class="lead">1970〜2025年の実際の値動きで「毎月つみたてていたら、何回に何回は元本割れしなかったか」を数えます。過去の勝率で比べる道具であって、将来の利益を約束するものではありません。</p>
+  </header>
+
+  <section class="notice" aria-label="はじめに確認すること">
+    <div class="note warn">
+      <h3>「絶対に損しない」投資はありません</h3>
+      <p>株式を使う限り、どの商品でも元本割れの可能性は残ります。このツールでできるのは、過去データで損をしにくかった組み合わせと期間を知ることまでです。</p>
+    </div>
+    <div class="note">
+      <h3>ジュニアNISAは新規購入できません</h3>
+      <p>2023年末で新しい買付は終了しました。2027年からは18歳未満もつみたて投資枠を使える「こども支援NISA」（年60万円・総額600万円、12歳以降に払出し可の予定）が始まる見込みです。最新の条件は金融庁の案内で確認してください。</p>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="cond">
+    <h2 id="cond">条件</h2>
+    <div class="controls">
+      <div class="field">
+        <label for="age">お子さんの今の年齢</label>
+        <div class="val"><span id="ageV" class="num">3</span><small>歳</small></div>
+        <input type="range" id="age" min="0" max="15" value="3">
+      </div>
+      <div class="field">
+        <label for="years">つみたて年数</label>
+        <div class="val"><span id="yearsV" class="num">15</span><small>年（<span id="untilV">18</span>歳まで）</small></div>
+        <input type="range" id="years" min="3" max="25" value="15">
+      </div>
+      <div class="field">
+        <label for="monthly">毎月のつみたて額（円）</label>
+        <input type="number" id="monthly" min="1000" step="1000" value="30000">
+        <small style="color:var(--muted);font-size:12px">合計 <span id="totalV" class="num"></span></small>
+      </div>
+    </div>
+  </section>
+
+  <section class="answer" aria-live="polite">
+    <div class="eyebrow">この条件での結果</div>
+    <div class="big" id="answerBig"></div>
+    <p id="answerSub"></p>
+  </section>
+
+  <section class="panel" aria-labelledby="tbl">
+    <div style="display:grid;gap:4px">
+      <h2 id="tbl">商品ごとの勝率</h2>
+      <p class="lead" style="font-size:13px">勝ち＝最後の評価額がつみたて合計額以上だった期間。行を選ぶと下のグラフが切り替わります。</p>
+    </div>
+    <div class="tablebox">
+      <table>
+        <thead><tr><th>商品タイプ</th><th>勝率</th><th>最悪だった期間</th><th>真ん中の結果</th><th>最良だった期間</th><th>試した期間</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="chartT">
+    <div style="display:grid;gap:4px">
+      <h2 id="chartT">始めた年ごとの結果</h2>
+      <p class="lead" style="font-size:13px" id="chartSub"></p>
+    </div>
+    <div class="legend">
+      <span style="--c:var(--good)">元本を上回った</span>
+      <span style="--c:var(--bad)">元本割れ</span>
+      <span style="--c:var(--ink)">点線＝つみたて合計額（1.0倍）</span>
+    </div>
+    <div class="chartbox"><svg id="chart" role="img" aria-label="始めた年ごとの最終評価額の倍率"></svg></div>
+  </section>
+
+  <section class="panel" aria-labelledby="mx">
+    <div style="display:grid;gap:4px">
+      <h2 id="mx">期間を延ばすと勝率はどう変わるか</h2>
+      <p class="lead" style="font-size:13px">同じ毎月つみたてを、年数だけ変えて数えた勝率です。株式は期間が長いほど元本割れが減る傾向がありましたが、100%を保証するものではありません。</p>
+    </div>
+    <div class="tablebox"><table class="matrix"><thead id="mxHead"></thead><tbody id="mxBody"></tbody></table></div>
+  </section>
+
+  <section class="foot" aria-labelledby="how">
+    <h3 id="how" style="color:var(--ink)">計算方法とデータ</h3>
+    <ul>
+      <li>年ごとのリターンで計算しています。毎年のつみたて分はその年の途中で買った扱い（その年のリターンの約半分を受ける）にしています。手数料・税金は含みません。</li>
+      <li>米国株：S&amp;P500の配当込みリターン（ドル建て）を年末のドル円レートで円に換算。全世界株型（オルカン等）は1970年までさかのぼれる長期データが少ないため、米国株と日本株の半々で代わりに見ています。</li>
+      <li>日本株：日経平均の年末値の変化に、配当分として年1.7%を足した概算です。</li>
+      <li>預金：1年定期のおおよその金利（1970〜80年代は年5%前後、1995年以降はほぼ0%）を使った概算です。インフレで実質的な価値が減る分は計算に入れていません。</li>
+      <li>試した期間は1年ずつずらして重ねているため、互いに独立した試行ではありません。1990年のバブル崩壊や2008年の金融危機のように、同じ出来事が複数の期間に影響しています。</li>
+      <li>数値は公開されている年次データからの概算で、教育目的の参考値です。特定の金融商品の購入を勧めるものではありません。</li>
+    </ul>
+  </section>
+</div>
+
+<script>
+// 年次データ 1970〜2025
+const YEARS = []; for (let y = 1970; y <= 2025; y++) YEARS.push(y);
+// S&P500 配当込み年間リターン（%・ドル建て）
+const SP = [4.01,14.31,18.98,-14.66,-26.47,37.20,23.84,-7.18,6.56,18.44,32.42,-4.91,21.55,22.56,6.27,31.73,18.67,5.25,16.61,31.69,-3.10,30.47,7.62,10.08,1.32,37.58,22.96,33.36,28.58,21.04,-9.10,-11.89,-22.10,28.68,10.88,4.91,15.79,5.49,-37.00,26.46,15.06,2.11,16.00,32.39,13.69,1.38,11.96,21.83,-4.38,31.49,18.40,28.71,-18.11,26.29,25.02,17.88];
+// ドル円 年末レート（1969年末から）
+const FX = [358,358,315,302,280,301,305,293,240,195,240,203,220,235,232,251,200,160,122,125,143,135,125,124,112,100,103,116,130,116,102,114,132,120,107,104,118,119,112,91,93,81,77,86,105,120,120,117,113,110,109,103,115,131,141,157,157];
+// 日経平均 年末終値（1969年末から）
+const NK = [2359,1987,2714,5208,4307,3817,4359,4991,4866,6002,6570,7116,7682,8017,9894,11543,13113,18701,21564,30159,38916,23849,22984,16925,17417,19723,19868,19361,15259,13842,18934,13786,10543,8579,10677,11489,16111,17226,15308,8860,10546,10229,8455,10395,16291,17451,19034,19114,22765,20015,23657,27444,28792,26095,33464,39895,50339];
+// 1年定期のおおよその金利（%）
+const DEP = YEARS.map(y => y < 1980 ? 5.5 : y < 1990 ? 5.0 : y === 1990 ? 6.0 : y === 1991 ? 5.5 : y === 1992 ? 3.5 : y === 1993 ? 2.5 : y === 1994 ? 2.0 : y === 1995 ? 1.0 : y < 2000 ? 0.3 : y < 2024 ? 0.02 : y === 2024 ? 0.1 : 0.3);
+
+const us = YEARS.map((_, i) => (1 + SP[i] / 100) * (FX[i + 1] / FX[i]) - 1);
+const jp = YEARS.map((_, i) => NK[i + 1] / NK[i] - 1 + 0.017);
+const dep = DEP.map(d => d / 100);
+const mix = YEARS.map((_, i) => 0.5 * us[i] + 0.5 * jp[i]);
+const half = YEARS.map((_, i) => 0.25 * us[i] + 0.25 * jp[i] + 0.5 * dep[i]);
+
+const ASSETS = [
+  { id: "us", name: "米国株インデックス", sub: "S&P500連動型（円で換算）", r: us },
+  { id: "mix", name: "日米株 半々", sub: "全世界株型の代わりの目安", r: mix },
+  { id: "jp", name: "日本株インデックス", sub: "日経平均連動型", r: jp },
+  { id: "half", name: "株式半分＋預金半分", sub: "日米株25%ずつ＋預金50%", r: half },
+  { id: "dep", name: "預金のみ", sub: "1年定期の概算金利", r: dep },
+];
+
+const $ = id => document.getElementById(id);
+const yen = v => v >= 1e8 ? (v / 1e8).toFixed(2) + "億円" : Math.round(v / 1e4).toLocaleString("ja-JP") + "万円";
+const pct = v => (v * 100).toFixed(0) + "%";
+
+function simulate(r, n, annual) {
+  const out = [];
+  for (let s = 0; s + n <= YEARS.length; s++) {
+    let v = 0;
+    for (let t = s; t < s + n; t++) v = v * (1 + r[t]) + annual * Math.sqrt(1 + r[t]);
+    out.push({ start: YEARS[s], end: YEARS[s + n - 1], value: v, ratio: v / (annual * n) });
+  }
+  return out;
+}
+function summarize(res) {
+  const sorted = [...res].sort((a, b) => a.ratio - b.ratio);
+  const wins = res.filter(x => x.ratio >= 1).length;
+  return { n: res.length, wins, rate: wins / res.length, worst: sorted[0], best: sorted[sorted.length - 1], median: sorted[Math.floor((sorted.length - 1) / 2)] };
+}
+const pillClass = r => r >= 0.95 ? "g" : r >= 0.8 ? "m" : "b";
+
+let selected = "mix";
+try { selected = localStorage.getItem("kodomo-sel") || selected; } catch (e) {}
+
+function render() {
+  const age = +$("age").value, years = +$("years").value;
+  const monthly = Math.max(1000, +$("monthly").value || 0);
+  const annual = monthly * 12, total = annual * years;
+  $("ageV").textContent = age; $("yearsV").textContent = years; $("untilV").textContent = age + years;
+  $("totalV").textContent = yen(total);
+
+  const stats = ASSETS.map(a => ({ a, res: simulate(a.r, years, annual) })).map(o => ({ ...o, s: summarize(o.res) }));
+
+  $("rows").innerHTML = stats.map(({ a, s }) => `
+    <tr data-id="${a.id}" class="${a.id === selected ? "sel" : ""}" tabindex="0">
+      <td><span class="aname">${a.name}</span><span class="asub">${a.sub}</span></td>
+      <td><span class="pill ${pillClass(s.rate)}">${pct(s.rate)}</span> <span class="num" style="font-size:12px;color:var(--muted)">${s.wins}/${s.n}</span></td>
+      <td class="num ${s.worst.ratio < 1 ? "neg" : ""}">${yen(s.worst.value)}<span class="asub">${s.worst.ratio.toFixed(2)}倍・${s.worst.start}年〜</span></td>
+      <td class="num">${yen(s.median.value)}<span class="asub">${s.median.ratio.toFixed(2)}倍</span></td>
+      <td class="num pos">${yen(s.best.value)}<span class="asub">${s.best.ratio.toFixed(2)}倍・${s.best.start}年〜</span></td>
+      <td class="num">${s.n}回</td>
+    </tr>`).join("");
+  document.querySelectorAll("#rows tr").forEach(tr => {
+    const pick = () => { selected = tr.dataset.id; try { localStorage.setItem("kodomo-sel", selected); } catch (e) {} render(); };
+    tr.addEventListener("click", pick);
+    tr.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pick(); } });
+  });
+
+  // 結論：株式を含む商品の中で、勝率が最も高く、同率なら中央値が大きいもの
+  const risky = stats.filter(x => x.a.id !== "dep").sort((x, y) => y.s.rate - x.s.rate || y.s.median.ratio - x.s.median.ratio);
+  const top = risky[0], depS = stats.find(x => x.a.id === "dep").s;
+  $("answerBig").textContent = `過去の勝率がいちばん高かったのは「${top.a.name}」：${top.s.n}回中${top.s.wins}回（${pct(top.s.rate)}）元本割れなし`;
+  const loseNote = top.s.rate < 1
+    ? `それでも最悪の期間（${top.s.worst.start}〜${top.s.worst.end}年）は ${yen(total)} が ${yen(top.s.worst.value)} になりました。`
+    : `この年数では過去に元本割れはありませんでしたが、最悪の期間（${top.s.worst.start}〜${top.s.worst.end}年）は ${top.s.worst.ratio.toFixed(2)} 倍にとどまりました。将来も同じとは限りません。`;
+  $("answerSub").textContent = `真ん中の結果は ${yen(top.s.median.value)}（つみたて合計 ${yen(total)}）。${loseNote} 預金だけなら真ん中の結果は ${yen(depS.median.value)} でした。`;
+
+  // グラフ
+  const sel = stats.find(x => x.a.id === selected) || stats[1];
+  $("chartSub").textContent = `${sel.a.name}を${years}年つみたてた場合。横軸は始めた年、縦軸は最後の評価額がつみたて合計の何倍になったか。`;
+  drawChart(sel.res);
+
+  // 期間別マトリクス
+  const spans = [3, 5, 10, 15, 18, 20];
+  $("mxHead").innerHTML = `<tr><th>商品タイプ</th>${spans.map(n => `<th>${n}年</th>`).join("")}</tr>`;
+  $("mxBody").innerHTML = ASSETS.map(a => `<tr style="cursor:default"><td><span class="aname">${a.name}</span></td>${spans.map(n => {
+    const s = summarize(simulate(a.r, n, 12)); return `<td class="${n === years ? "hl" : ""}"><span class="pill ${pillClass(s.rate)}">${pct(s.rate)}</span></td>`;
+  }).join("")}</tr>`).join("");
+}
+
+function drawChart(res) {
+  const svg = $("chart");
+  const W = Math.max(560, res.length * 16 + 70), H = 260, L = 44, R = 12, T = 14, B = 30;
+  const maxR = Math.max(1.5, ...res.map(x => x.ratio));
+  const step = maxR > 6 ? 2 : maxR > 3 ? 1 : 0.5;
+  const top = Math.ceil(maxR / step) * step;
+  const y = v => T + (H - T - B) * (1 - v / top);
+  const bw = (W - L - R) / res.length;
+  let g = "";
+  for (let v = 0; v <= top + 1e-9; v += step) {
+    g += `<line x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)" stroke-width="1"/>`;
+    g += `<text x="${L - 6}" y="${y(v) + 4}" text-anchor="end">${v.toFixed(step < 1 ? 1 : 0)}倍</text>`;
+  }
+  res.forEach((d, i) => {
+    const x = L + i * bw + bw * 0.15, w = bw * 0.7;
+    const c = d.ratio >= 1 ? "var(--good)" : "var(--bad)";
+    g += `<rect class="bar" x="${x}" y="${y(d.ratio)}" width="${w}" height="${y(0) - y(d.ratio)}" rx="2" fill="${c}"><title>${d.start}〜${d.end}年：${d.ratio.toFixed(2)}倍</title></rect>`;
+    if (d.start % 5 === 0) g += `<text x="${x + w / 2}" y="${H - 10}" text-anchor="middle">${d.start}</text>`;
+  });
+  g += `<line x1="${L}" x2="${W - R}" y1="${y(1)}" y2="${y(1)}" stroke="var(--ink)" stroke-width="1.5" stroke-dasharray="5 4"/>`;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.setAttribute("width", W); svg.setAttribute("height", H);
+  svg.innerHTML = g;
+}
+
+$("age").addEventListener("input", () => {
+  const age = +$("age").value;
+  $("years").value = Math.max(3, 18 - age);
+  render();
+});
+$("years").addEventListener("input", render);
+$("monthly").addEventListener("input", render);
+render();
+</script>
+</body>
+</html>
