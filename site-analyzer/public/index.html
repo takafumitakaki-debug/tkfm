@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Site Analyzer</title>
+<style>
+  :root { --bg:#f6f7f9; --panel:#fff; --panel2:#f1f3f6; --text:#1d2330; --muted:#667085; --line:#e3e7ee; --accent:#2f6fed; --accent-soft:#e7efff; --good:#12a150; --warn:#d97706; --bad:#d92d20; color-scheme: light; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#0f1218; --panel:#171b23; --panel2:#1e232d; --text:#e6e9ef; --muted:#98a2b3; --line:#2a303c; --accent:#6d9bff; --accent-soft:#1d2a44; --good:#3ccf7c; --warn:#f2a43a; --bad:#ff6b5f; color-scheme: dark; } }
+  :root[data-theme="dark"] { --bg:#0f1218; --panel:#171b23; --panel2:#1e232d; --text:#e6e9ef; --muted:#98a2b3; --line:#2a303c; --accent:#6d9bff; --accent-soft:#1d2a44; --good:#3ccf7c; --warn:#f2a43a; --bad:#ff6b5f; color-scheme: dark; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.7 -apple-system, BlinkMacSystemFont, "Hiragino Sans", "Noto Sans JP", Meiryo, sans-serif; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 56px 16px; }
+  h1 { font-size: 30px; margin: 0 0 6px; letter-spacing: .01em; }
+  .lead { color: var(--muted); margin: 0 0 28px; }
+  form { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+  .row { display: flex; gap: 10px; }
+  input[type=url], input[type=text], input[type=number] { font: inherit; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); color: var(--text); width: 100%; }
+  button { font: inherit; padding: 12px 22px; border-radius: 10px; border: 0; background: var(--accent); color: #fff; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  button:disabled { opacity: .5; cursor: default; }
+  .opts { display: flex; flex-wrap: wrap; gap: 14px 22px; margin-top: 14px; font-size: 13px; color: var(--muted); align-items: center; }
+  .opts input[type=number] { width: 80px; padding: 6px 8px; }
+  .feats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 28px 0; }
+  .feat { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; font-size: 13px; }
+  .feat b { display: block; font-size: 14px; margin-bottom: 2px; }
+  .feat span { color: var(--muted); }
+  @media (max-width: 700px) { .feats { grid-template-columns: 1fr 1fr; } .row { flex-direction: column; } }
+  #progress { margin-top: 16px; display: none; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; }
+  .bar { height: 6px; background: var(--panel2); border-radius: 3px; overflow: hidden; margin-top: 10px; }
+  .bar i { display: block; height: 100%; width: 30%; background: var(--accent); animation: slide 1.4s infinite ease-in-out; }
+  @keyframes slide { 0% { margin-left: -30%; } 100% { margin-left: 100%; } }
+  .err { color: var(--bad); }
+  h2 { font-size: 17px; margin: 36px 0 10px; }
+  table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; font-size: 13px; }
+  td, th { padding: 9px 12px; border-bottom: 1px solid var(--line); text-align: left; }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; }
+  td.num { text-align: right; font-variant-numeric: tabular-nums; }
+  a { color: var(--accent); text-decoration: none; word-break: break-all; }
+  code { background: var(--panel2); padding: 2px 6px; border-radius: 6px; font-size: 12px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Site Analyzer</h1>
+  <p class="lead">URLを1つ入れるだけで、SEO監査・ページリスト・サイト構造・見出し・AI検索対策（チャンク設計）・予測ヒートマップを解析し、改善案と改善ファイルまで作成します。GA4やSearch Consoleの連携は不要です。</p>
+  <form id="f">
+    <div class="row"><input type="text" id="url" placeholder="https://example.com" required autofocus><button id="go">解析する</button></div>
+    <div class="opts">
+      <label>最大ページ数 <input type="number" id="max" value="200" min="1" max="2000"></label>
+      <label>ヒートマップ <input type="number" id="heat" value="3" min="0" max="10"> ページ</label>
+      <label><input type="checkbox" id="ai" checked> Claudeで改善原稿を作成（APIキー設定時）</label>
+      <label><input type="checkbox" id="robots" checked> robots.txtを守る</label>
+    </div>
+  </form>
+  <div id="progress"><div id="msg">準備中…</div><div class="bar"><i></i></div></div>
+  <div class="feats">
+    <div class="feat"><b>SEO監査</b><span>50項目超の課題を検出し、改善方法を提示</span></div>
+    <div class="feat"><b>ページリスト</b><span>全ページのtitle・深度・被リンク・内部ランク</span></div>
+    <div class="feat"><b>サイトストラクチャー</b><span>階層ツリー図・孤立/深すぎるページ・ハブ不足</span></div>
+    <div class="feat"><b>見出し(H)構造</b><span>飛び・複数h1を検出し修正案を生成</span></div>
+    <div class="feat"><b>AI検索対策</b><span>チャンク採点・llms.txt・AIボット・構造化データ</span></div>
+    <div class="feat"><b>ヒートマップ</b><span>注視・クリック・スクロールの予測＋自前計測タグ</span></div>
+  </div>
+  <h2>過去のレポート</h2>
+  <div id="list"><p style="color:var(--muted)">読み込み中…</p></div>
+  <h2>実測ヒートマップ計測タグ</h2>
+  <p style="font-size:13px;color:var(--muted)">対象サイトに次の1行を設置すると、GA4なしでクリック・スクロールを計測し、レポートのヒートマップに重ねて表示します：<br><code id="tag"></code></p>
+</div>
+<script>
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  $('#tag').textContent = `<script src="${location.origin}/t.js" defer><\/script>`;
+  async function loadList() {
+    const r = await fetch('/api/reports').then((r) => r.json()).catch(() => []);
+    $('#list').innerHTML = r.length ? `<table><tr><th>URL</th><th>総合</th><th>SEO</th><th>AI対策</th><th>構造</th><th>ページ</th><th>日時</th></tr>${r.map((x) => `<tr><td><a href="/reports/${encodeURIComponent(x.id)}/report.html">${esc(x.url)}</a></td><td class="num">${x.scores?.overall ?? '-'}</td><td class="num">${x.scores?.seo ?? '-'}</td><td class="num">${x.scores?.aio ?? '-'}</td><td class="num">${x.scores?.structure ?? '-'}</td><td class="num">${x.pages ?? '-'}</td><td>${new Date(x.date).toLocaleString('ja-JP')}</td></tr>`).join('')}</table>` : '<p style="color:var(--muted)">まだありません</p>';
+  }
+  loadList();
+  $('#f').onsubmit = async (e) => {
+    e.preventDefault();
+    $('#go').disabled = true;
+    $('#progress').style.display = 'block';
+    $('#msg').textContent = '解析を開始しています…';
+    const res = await fetch('/api/analyze', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ url: $('#url').value, maxPages: +$('#max').value, heatmap: +$('#heat').value, ai: $('#ai').checked, respectRobots: $('#robots').checked }) }).then((r) => r.json());
+    if (res.error) { $('#msg').innerHTML = `<span class="err">${esc(res.error)}</span>`; $('#go').disabled = false; return; }
+    const poll = async () => {
+      const j = await fetch('/api/jobs/' + res.id).then((r) => r.json());
+      if (j.status === 'done') { location.href = j.report; return; }
+      if (j.status === 'error') { $('#msg').innerHTML = `<span class="err">エラー：${esc(j.error)}</span>`; $('#go').disabled = false; return; }
+      $('#msg').textContent = `${j.message || '処理中'}（${Math.round(j.elapsed / 1000)}秒）`;
+      setTimeout(poll, 1000);
+    };
+    poll();
+  };
+</script>
+</body>
+</html>
