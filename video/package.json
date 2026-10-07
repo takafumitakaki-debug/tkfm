@@ -13,5 +13,9 @@
   "private": "true",
   "dependencies": {
     "@google/genai": "^2.27.0"
+  },
+  "devDependencies": {
+    "@fontsource/klee-one": "^5.3.0",
+    "playwright": "^1.56.1"
   }
 }

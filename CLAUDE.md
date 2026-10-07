@@ -1,5 +1,11 @@
 # AI動画プロジェクト
 
+## 進め方(2026-10-07 決定)
+- まずは追加費用なしで作る:絵は SVG/HTML のコードで描き、
+  Chromium(Playwright)で1コマずつ画像にして ffmpeg で動画にする(`video/scenes/`, `video/render.mjs`)
+- Gemini による生成は、コード版を見たうえで「このカットだけ絵画的にしたい」と
+  決まったときにだけ使う。そのときは下の「使う道具」「お金のルール」に従う
+
 ## 使う道具
 - 生成スクリプトは Node.js + 公式SDK「@google/genai」で書く
 - 画像生成は gemini-3-pro-image(Nano Banana Pro)、

@@ -1,0 +1,23 @@
+@import url('../node_modules/@fontsource/klee-one/600.css');
+
+html, body { margin: 0; padding: 0; background: #f4efe4; overflow: hidden; }
+#stage { display: block; width: 100vw; height: 100vh; }
+
+/* 鉛筆の線 */
+.line { fill: none; stroke: #2f2b27; stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; filter: url(#pencil); }
+.line.thin { stroke-width: 2; }
+.line.soft { stroke: #6c645a; stroke-width: 2; }
+
+/* 水彩のぬり */
+.wash { filter: url(#wash); mix-blend-mode: multiply; }
+
+/* 手書き文字 */
+.hand { font-family: 'Klee One', sans-serif; font-weight: 600; fill: #2f2b27; }
+
+
+/* 線をまとめて鉛筆の質感にするグループ(中の線には個別のフィルターをかけない) */
+.ink { filter: url(#pencil); }
+.ink .line { filter: none; }
+
+/* 手前の物(トラックなど):後ろが透けないよう、乗算にせず普通に塗る */
+.solid .wash { mix-blend-mode: normal; filter: url(#wash-solid); }
