@@ -1,0 +1,15 @@
+{
+  "name": "tkfm-share",
+  "version": "1.0.0",
+  "private": true,
+  "description": "招待したメンバーだけで写真・動画を共有する自前サーバー型アプリ",
+  "type": "module",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server.js",
+    "invite": "node --disable-warning=ExperimentalWarning server.js invite",
+    "test": "node --disable-warning=ExperimentalWarning --test test/*.test.js"
+  }
+}

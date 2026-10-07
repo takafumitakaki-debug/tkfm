@@ -50,6 +50,13 @@ cd site && npm install && npm run dev   # → http://localhost:4321
 | ⑦ | コーディング（実装構成・公開手順・公開前チェックリスト） | [docs/07_coding.md](docs/07_coding.md) |
 | ⑧ | CMS 構築・運用マニュアル | [docs/08_cms.md](docs/08_cms.md) |
 
+## その他のツール
+
+| 内容 | 場所 |
+|---|---|
+| ブラウザで動く動画編集ソフト | [video-editor/](video-editor/README.md) |
+| 招待した人だけの写真・動画共有アプリ（iPhoneの容量を使わない） | [photo-share/](photo-share/README.md) |
+
 ## ワイヤーフレーム（HTML）の見方
 
 `wireframes/index.html` をブラウザで開く（ビルド不要）。
