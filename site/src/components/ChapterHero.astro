@@ -1,0 +1,21 @@
+---
+// 章扉（01〜05 共通）：章番号／章名／英字／この章が答える問い／横長写真
+import ChapterLabel from './ChapterLabel.astro';
+import Photo from './Photo.astro';
+import { ph } from '../lib/text';
+interface Props { chapter: { num: string; title: string; en: string; question: string; hero?: any }; }
+const { chapter: c } = Astro.props;
+---
+<section class="ch">
+  <div class="container ch__in">
+    <ChapterLabel num={c.num} title={c.title} en={c.en} size="lg" />
+    <h1 class="ch__q" set:html={ph(c.question)} />
+  </div>
+  <div class="ch__photo"><Photo photo={c.hero} ratio="pano" eager /></div>
+</section>
+<style>
+  .ch { padding-top: var(--sp-8); }
+  .ch__in { display: grid; gap: var(--sp-5); padding-bottom: var(--sp-7); }
+  .ch__q { font-size: var(--fs-2xl); font-weight: 500; letter-spacing: .1em; line-height: 1.6; max-width: 20em; }
+  .ch__photo { max-width: 1440px; margin-inline: auto; padding-inline: var(--gutter); }
+</style>

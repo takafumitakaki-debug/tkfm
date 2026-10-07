@@ -1,0 +1,118 @@
+/* ==========================================================================
+   Base / 共通クラス
+   コンポーネント固有のスタイルは各 .astro に閉じ込め、ここには全ページ共通のものだけを置く。
+   ========================================================================== */
+@import "./tokens.css";
+
+*, *::before, *::after { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--header-h) + 16px); }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+body {
+  margin: 0;
+  background: var(--c-paper);
+  color: var(--c-ink);
+  font-family: var(--ff-sans);
+  font-size: var(--fs-base);
+  line-height: var(--lh-body);
+  letter-spacing: var(--ls-body);
+  font-feature-settings: "palt" 0;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  line-break: strict;
+}
+img, svg, video { display: block; max-width: 100%; height: auto; }
+h1, h2, h3, h4 { margin: 0; font-family: var(--ff-serif); font-weight: 600; line-height: var(--lh-head); letter-spacing: .06em; font-feature-settings: "palt" 1; }
+p { margin: 0 0 1em; }
+p:last-child { margin-bottom: 0; }
+a { color: inherit; text-underline-offset: .25em; text-decoration-thickness: 1px; }
+a:hover { color: var(--c-accent); }
+:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 3px; }
+table { border-collapse: collapse; width: 100%; }
+dl, dd { margin: 0; }
+ul, ol { padding-left: 1.4em; }
+hr { border: 0; border-top: 1px solid var(--c-line); margin: var(--sp-7) 0; }
+
+/* ---------- レイアウト ---------- */
+.container { width: 100%; max-width: calc(var(--w-max) + var(--gutter) * 2); margin-inline: auto; padding-inline: var(--gutter); }
+.container--text { max-width: calc(var(--w-text) + var(--gutter) * 2); }
+.section { padding-block: var(--section); }
+.section + .section { padding-top: 0; }
+.section--alt { background: var(--c-paper-2); }
+.section--alt + .section, .section + .section--alt { padding-top: var(--section); }
+.section--deep { background: var(--c-deep); color: var(--c-on-deep); }
+.section--deep + .section { padding-top: var(--section); }
+.stack > * + * { margin-top: var(--stack, var(--sp-5)); }
+.grid { display: grid; gap: var(--gap, var(--sp-6)); }
+@media (min-width: 768px) {
+  .grid--2 { grid-template-columns: repeat(2, 1fr); }
+  .grid--3 { grid-template-columns: repeat(3, 1fr); }
+  .grid--4 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (min-width: 1024px) { .grid--4 { grid-template-columns: repeat(4, 1fr); } }
+
+/* ---------- テキスト ---------- */
+.label { /* 英字ラベル：NEWS / お知らせ など */
+  display: inline-block; font-family: var(--ff-sans); font-size: var(--fs-xs); font-weight: 500;
+  letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--c-ink-3);
+}
+.lead { font-size: var(--fs-md); line-height: 2; }
+.small { font-size: var(--fs-sm); color: var(--c-ink-2); }
+.serif { font-family: var(--ff-serif); }
+.h-xl { font-size: var(--fs-xl); }
+.h-lg { font-size: var(--fs-lg); }
+.statement { font-family: var(--ff-serif); font-size: var(--fs-2xl); line-height: 1.7; letter-spacing: .08em; font-weight: 500; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- ボタン ---------- */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: .8em;
+  min-height: 52px; padding: 0 1.8em; border: 1px solid var(--c-ink); border-radius: var(--radius);
+  font-size: var(--fs-sm); font-weight: 500; letter-spacing: .1em; text-decoration: none; color: var(--c-ink);
+  background: transparent; cursor: pointer; transition: background var(--dur) var(--ease), color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.btn::after { content: "→"; font-family: var(--ff-sans); transition: transform var(--dur) var(--ease); }
+.btn:hover { background: var(--c-ink); color: var(--c-paper); }
+.btn:hover::after { transform: translateX(4px); }
+.btn--primary { background: var(--c-accent); border-color: var(--c-accent); color: var(--c-on-accent); }
+.btn--primary:hover { background: var(--c-accent-hover); border-color: var(--c-accent-hover); color: var(--c-on-accent); }
+.btn--ondeep { border-color: var(--c-on-deep); color: var(--c-on-deep); }
+.btn--ondeep:hover { background: var(--c-on-deep); color: var(--c-deep); }
+.btn--plain::after { content: none; }
+.btn-row { display: flex; flex-wrap: wrap; gap: var(--sp-4); }
+.textlink { display: inline-flex; gap: .5em; align-items: center; font-size: var(--fs-sm); font-weight: 500; text-decoration: none; border-bottom: 1px solid currentColor; padding-bottom: 2px; }
+.textlink::after { content: "→"; }
+
+/* ---------- タグ ---------- */
+.tag { display: inline-block; padding: 2px 10px; border: 1px solid var(--c-line); border-radius: 999px; font-size: var(--fs-xs); color: var(--c-ink-2); background: var(--c-card); }
+.tag--accent { border-color: var(--c-accent); color: var(--c-accent); }
+
+/* ---------- 表 ---------- */
+.table th, .table td { padding: var(--sp-4) var(--sp-3); border-bottom: 1px solid var(--c-line); text-align: left; vertical-align: top; }
+.table th { width: 9em; font-weight: 500; color: var(--c-ink-2); white-space: nowrap; }
+.table tr:first-child th, .table tr:first-child td { border-top: 1px solid var(--c-ink); }
+@media (max-width: 599px) {
+  .table th, .table td { display: block; width: auto; border: 0; padding: 0; }
+  .table th { padding-top: var(--sp-4); }
+  .table td { padding-bottom: var(--sp-4); border-bottom: 1px solid var(--c-line); }
+  .table tr:first-child th { border-top: 1px solid var(--c-ink); }
+}
+
+/* ---------- 本文（Markdown） ---------- */
+.prose { max-width: var(--w-text); }
+.prose h2 { font-size: var(--fs-lg); margin: 2.4em 0 .8em; padding-top: .8em; border-top: 1px solid var(--c-line); }
+.prose h3 { font-size: var(--fs-md); margin: 2em 0 .6em; }
+.prose img { margin: 2em 0; }
+.prose blockquote { margin: 2em 0; padding-left: 1.2em; border-left: 2px solid var(--c-accent); font-family: var(--ff-serif); }
+
+/* ---------- 制作中の状態表示 ---------- */
+/* 【仮置き原稿】：CMS で正式原稿に置き換えると自然に消える */
+.ph { color: var(--c-ph); background: var(--c-ph-bg); border-bottom: 1px dashed var(--c-ph); padding: 0 .15em; font-family: var(--ff-sans); font-weight: 400; letter-spacing: .02em; }
+.section--deep .ph { background: rgba(234, 241, 252, .12); color: #a9c6f5; border-color: #a9c6f5; }
+.check { display: inline-block; margin-left: .5em; padding: 0 .5em; border-radius: var(--radius); font-size: var(--fs-xs); font-family: var(--ff-sans); font-weight: 500; letter-spacing: .05em; color: var(--c-check); background: var(--c-check-bg); vertical-align: .15em; white-space: nowrap; }
+
+/* ---------- 出現アニメーション ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal] { opacity: 0; transform: translateY(16px); transition: opacity .8s var(--ease), transform .8s var(--ease); }
+  .js [data-reveal].is-in { opacity: 1; transform: none; }
+}

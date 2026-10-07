@@ -1,0 +1,13 @@
+---
+import Recruit from '../../../layouts/Recruit.astro';
+import PageHero from '../../../components/PageHero.astro';
+import InterviewCard from '../../../components/InterviewCard.astro';
+import { interviews } from '../../../lib/data';
+const list = await interviews();
+---
+<Recruit title="人を知る">
+  <PageHero en="People" title="人を知る" lead="どんな人が、どんな想いで、イバノで働いているのか。" />
+  <section class="section">
+    <div class="container grid grid--3">{list.map((p) => <InterviewCard entry={p} base="/recruit/people" headline="recruit" />)}</div>
+  </section>
+</Recruit>

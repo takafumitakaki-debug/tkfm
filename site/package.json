@@ -1,0 +1,23 @@
+{
+  "name": "ivano-corporate-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "cms": "GIT_REPO_DIRECTORY=.. decap-server",
+    "check:placeholders": "node scripts/check-placeholders.mjs",
+    "check": "astro check"
+  },
+  "dependencies": {
+    "@astrojs/markdown-remark": "^7.3.2",
+    "astro": "^7.3.6"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@types/node": "^26.6.4",
+    "decap-server": "^3.11.3",
+    "typescript": "^6.0.3"
+  }
+}

@@ -1,0 +1,13 @@
+tel: { value: "【代表電話番号を確認して配置】", confirmed: false }
+hours: { value: "【受付時間を確認して配置】", confirmed: false }
+shopTel: { value: "【店舗の電話番号を確認して配置】", confirmed: false }
+types:
+  - { key: business, label: お取引のご相談, description: 飲食店・ホテル・小売の方 }
+  - { key: shop, label: 店舗・商品について, description: イバノ牧港店・IVANO SELECT・商品に関するお問い合わせ }
+  - { key: recruit, label: 採用について, description: 採用・応募に関するお問い合わせ }
+  - { key: other, label: その他, description: 取材・協賛など }
+endpoint: ""
+privacy: |
+  ## 【プライバシーポリシー：既存文面を確認して配置】
+
+  【個人情報の取り扱いに関する既存の文面を、クライアント確認の上で配置する】

@@ -1,0 +1,40 @@
+---
+import Base from '../../layouts/Base.astro';
+import { render } from 'astro:content';
+import { news, newsCategories, newsChapter } from '../../lib/data';
+import { formatDate, ph } from '../../lib/text';
+export async function getStaticPaths() {
+  const all = await news();
+  return all.map((entry, i) => ({ params: { slug: entry.id }, props: { entry, prev: all[i + 1] ?? null, next: all[i - 1] ?? null } }));
+}
+const { entry, prev, next } = Astro.props;
+const { Content } = await render(entry);
+const d = entry.data;
+const related = newsChapter[d.category];
+---
+<Base title={d.title}>
+  <article class="section">
+    <div class="container container--text">
+      <p class="meta"><time datetime={d.date.toISOString().slice(0, 10)}>{formatDate(d.date)}</time><a class="tag" href={`/news/category/${d.category}/`}>{newsCategories[d.category]}</a></p>
+      <h1 class="h-xl" set:html={ph(d.title)} />
+      {d.thumbnail && <img class="thumb" src={d.thumbnail} alt="" />}
+      <div class="prose body"><Content /></div>
+      {related && <p class="rel">関連する章 ― <a class="textlink" href={related.href}>{related.label}</a></p>}
+      <nav class="pn" aria-label="前後の記事">
+        {prev ? <a href={`/news/${prev.id}/`}>← <span set:html={ph(prev.data.title)} /></a> : <span />}
+        <a href="/news/">一覧へ戻る</a>
+        {next ? <a href={`/news/${next.id}/`}><span set:html={ph(next.data.title)} /> →</a> : <span />}
+      </nav>
+    </div>
+  </article>
+</Base>
+<style>
+  .meta { display: flex; gap: var(--sp-4); align-items: center; color: var(--c-ink-2); font-size: var(--fs-sm); }
+  .meta a { text-decoration: none; }
+  .h-xl { margin: var(--sp-3) 0 var(--sp-7); padding-bottom: var(--sp-5); border-bottom: 1px solid var(--c-ink); }
+  .thumb { margin-bottom: var(--sp-6); }
+  .rel { margin-top: var(--sp-8); padding: var(--sp-5); background: var(--c-paper-2); font-size: var(--fs-sm); }
+  .pn { display: grid; grid-template-columns: 1fr auto 1fr; gap: var(--sp-4); margin-top: var(--sp-7); padding-top: var(--sp-5); border-top: 1px solid var(--c-line); font-size: var(--fs-sm); }
+  .pn a { text-decoration: none; }
+  .pn a:last-child { text-align: right; }
+</style>

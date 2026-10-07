@@ -1,0 +1,27 @@
+---
+// 図解「理念 → フィロソフィ → 事業 → 人 → 地域」（サイト構造そのもの）
+import { chapters } from '../lib/data';
+interface Props { current?: string; notes?: Record<string, string>; }
+const { current, notes = {} } = Astro.props;
+const list = await chapters();
+---
+<ol class="cc" data-reveal>
+  {list.map((c) => (
+    <li class:list={{ 'is-cur': c.slug === current }}>
+      <a href={`/${c.slug}/`}>
+        <span class="cc__n">{c.num}</span>
+        <span class="cc__t">{c.title}</span>
+        <span class="cc__note">{notes[c.slug] ?? c.question}</span>
+      </a>
+    </li>
+  ))}
+</ol>
+<style>
+  .cc { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--sp-2); }
+  @media (min-width: 960px) { .cc { grid-template-columns: repeat(5, 1fr); gap: var(--sp-3); } }
+  a { display: flex; flex-direction: column; gap: 6px; height: 100%; padding: var(--sp-5); border-top: 2px solid var(--c-ink); text-decoration: none; background: var(--c-card); }
+  .is-cur a { border-top-color: var(--c-accent); background: var(--c-paper-2); }
+  .cc__n { font-family: var(--ff-serif); color: var(--c-accent); font-size: var(--fs-lg); }
+  .cc__t { font-family: var(--ff-serif); font-weight: 600; font-size: var(--fs-md); letter-spacing: .15em; }
+  .cc__note { font-size: var(--fs-xs); color: var(--c-ink-2); line-height: 1.7; }
+</style>

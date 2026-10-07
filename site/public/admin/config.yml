@@ -1,0 +1,506 @@
+# ============================================================================
+# イバノ コーポレートサイト CMS 設定（Decap CMS）
+# 入力項目は site/src/content.config.ts のスキーマと 1対1 で対応させること。
+# 詳しくは docs/08_cms.md
+# ============================================================================
+locale: ja
+
+backend:
+  name: github
+  repo: takafumitakaki-debug/tkfm   # 本番運用リポジトリに合わせて変更
+  branch: main                       # サイトを公開するブランチ
+  # base_url: https://<OAuthプロキシのURL>   # Netlify 以外でホストする場合に設定
+  commit_messages:
+    create: "CMS: {{collection}}「{{slug}}」を作成"
+    update: "CMS: {{collection}}「{{slug}}」を更新"
+    delete: "CMS: {{collection}}「{{slug}}」を削除"
+    uploadMedia: "CMS: 画像 {{path}} をアップロード"
+    deleteMedia: "CMS: 画像 {{path}} を削除"
+
+# 下書き → レビュー待ち → 公開 の承認フロー（GitHub上ではPRとして作られる）
+publish_mode: editorial_workflow
+
+# ローカル編集：`npm run cms` と `npm run dev` を起動して http://localhost:4321/admin/
+local_backend: true
+
+media_folder: site/public/uploads
+public_folder: /uploads
+site_url: https://www.ivano.co.jp
+display_url: https://www.ivano.co.jp
+logo_url: /favicon.svg
+
+# ---------------------------------------------------------------------------
+# 共通部品（YAML アンカー）
+# ---------------------------------------------------------------------------
+x-photo: &photo
+  widget: object
+  collapsed: true
+  required: false
+  summary: "{{fields.no}} {{fields.note}}"
+  fields:
+    - { label: 画像, name: src, widget: image, required: false, hint: "未設定の間は、撮影指示入りのグレーの枠が表示されます" }
+    - { label: 代替テキスト（画像の説明）, name: alt, widget: string, required: false }
+    - { label: 撮影指示, name: note, widget: string, required: false }
+    - { label: 撮影リストNo, name: "no", widget: string, required: false, hint: "docs/05_photo_list.md の番号" }
+
+x-fact: &fact
+  widget: object
+  fields:
+    - { label: 値, name: value, widget: string }
+    - { label: クライアント確認済み, name: confirmed, widget: boolean, default: false, hint: "オフの間はサイトに「要確認」バッジが出ます" }
+
+x-link: &link
+  widget: object
+  fields:
+    - { label: 表示名, name: label, widget: string }
+    - { label: リンク先, name: href, widget: string }
+
+x-slug: &slug
+  label: URL用の名前（半角英数字とハイフン）
+  name: slug
+  widget: string
+  pattern: ['^[a-z0-9-]+$', '半角英小文字・数字・ハイフンのみ']
+
+collections:
+  # =========================================================================
+  # 更新頻度の高いもの
+  # =========================================================================
+  - name: news
+    label: ニュース
+    label_singular: ニュース
+    description: "お知らせ・店舗・採用・地域。「地域」カテゴリは 05 地域ページにも最新3件が自動表示されます。"
+    folder: site/src/content/news
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{hour}}{{minute}}"
+    summary: "{{date | date('YYYY.MM.DD')}}［{{category}}］{{title}}"
+    sortable_fields: [date, title]
+    view_filters:
+      - { label: お知らせ, field: category, pattern: info }
+      - { label: 店舗, field: category, pattern: shop }
+      - { label: 採用, field: category, pattern: recruit }
+      - { label: 地域, field: category, pattern: area }
+    fields:
+      - { label: タイトル, name: title, widget: string }
+      - { label: 日付, name: date, widget: datetime, date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD", default: "{{now}}" }
+      - label: カテゴリ
+        name: category
+        widget: select
+        options:
+          - { label: お知らせ（営業日・価格・取引先向け）, value: info }
+          - { label: 店舗, value: shop }
+          - { label: 採用, value: recruit }
+          - { label: 地域, value: area }
+      - { label: サムネイル, name: thumbnail, widget: image, required: false }
+      - { label: 下書き（公開しない）, name: draft, widget: boolean, default: false }
+      - { label: 本文, name: body, widget: markdown }
+
+  - name: interviews
+    label: 社員インタビュー
+    label_singular: 社員インタビュー
+    description: "04 人と採用サイト「人を知る」で共通利用されます（二重管理しない）。"
+    folder: site/src/content/interviews
+    create: true
+    slug: "{{fields.slug}}"
+    identifier_field: name
+    summary: "{{order}}. {{name}}（{{dept}}）"
+    sortable_fields: [order, name]
+    fields:
+      - *slug
+      - { label: 表示順, name: order, widget: number, default: 100, value_type: int }
+      - { label: 氏名, name: name, widget: string }
+      - { label: 部署, name: dept, widget: string }
+      - { label: 職種, name: role, widget: string }
+      - { label: 入社年, name: joined, widget: string, hint: "例：2018年" }
+      - { label: 本人の言葉（一覧の見出し）, name: quote, widget: string }
+      - { label: 採用サイト用の見出し, name: recruitHeadline, widget: string, required: false, hint: "入社理由・入社前後のギャップなど求職者向けの切り口" }
+      - { <<: *photo, label: ポートレート, name: portrait }
+      - { label: 仕事中の写真, name: photos, widget: list, required: false, collapsed: true, field: { <<: *photo, label: 写真, name: photo } }
+      - { label: 関連するフィロソフィ番号, name: philosophyTags, widget: list, required: false, hint: "例：02-3" }
+      - { label: TOPに表示する, name: featured, widget: boolean, default: false }
+      - { label: 下書き（公開しない）, name: draft, widget: boolean, default: false }
+      - label: 本文
+        name: body
+        widget: markdown
+        default: "## 今の仕事\n\n\n## イバノに入った理由\n\n\n## 仕事で大切にしていること\n\n\n## 忘れられない仕事\n\n\n## これから実現したいこと\n"
+
+  - name: jobs
+    label: 募集要項
+    label_singular: 募集職種
+    folder: site/src/content/jobs
+    create: true
+    slug: "{{fields.slug}}"
+    summary: "［{{kind}}］{{title}}（募集中：{{open}}）"
+    fields:
+      - *slug
+      - { label: 職種名, name: title, widget: string }
+      - { label: 区分, name: kind, widget: select, options: [{ label: 新卒採用, value: new-graduate }, { label: 中途採用, value: mid-career }] }
+      - { label: 表示順, name: order, widget: number, default: 100, value_type: int }
+      - { label: 募集中, name: open, widget: boolean, default: true }
+      - label: 募集要項
+        name: fields
+        widget: list
+        summary: "{{fields.label}}"
+        default:
+          - { label: 仕事内容, value: "" }
+          - { label: 応募資格, value: "" }
+          - { label: 勤務地, value: "" }
+          - { label: 勤務時間, value: "" }
+          - { label: 休日, value: "" }
+          - { label: 給与, value: "" }
+          - { label: 手当, value: "" }
+          - { label: 福利厚生, value: "" }
+          - { label: 選考フロー, value: "" }
+        fields:
+          - { label: 項目, name: label, widget: string }
+          - { label: 内容, name: value, widget: text }
+      - { label: 補足（任意）, name: body, widget: markdown, required: false }
+
+  # =========================================================================
+  # 事業
+  # =========================================================================
+  - name: business
+    label: 03 事業
+    label_singular: 事業
+    description: "全事業共通の「4つの問い」の型で書きます。"
+    folder: site/src/content/business
+    create: true
+    slug: "{{fields.slug}}"
+    identifier_field: name
+    summary: "{{order}}. {{name}}"
+    fields:
+      - { <<: *slug, hint: "ページ内リンク・URL に使われます（wholesale / import / shop / private-brand）" }
+      - { label: 表示順, name: order, widget: number, value_type: int }
+      - { label: 事業名, name: name, widget: string }
+      - { label: 見出し（「誰に」を見出しにする）, name: heading, widget: string }
+      - { label: 何をしているのか, name: what, widget: text }
+      - { label: 誰に提供しているのか, name: who, widget: text }
+      - { label: どんな価値があるのか, name: value, widget: text }
+      - { label: 理念とどうつながっているのか, name: link, widget: text }
+      - { label: 関連するフィロソフィ番号, name: philosophyTags, widget: list, required: false }
+      - { label: 取扱例, name: examples, widget: string, required: false }
+      - { <<: *photo, label: 写真, name: photo }
+      - label: 担当者の言葉
+        name: voice
+        widget: object
+        required: false
+        fields:
+          - { label: 言葉, name: quote, widget: text }
+          - { label: 部署・氏名, name: name, widget: string }
+      - { <<: *link, label: ボタン, name: cta, required: false }
+      - { label: 独立ページにする, name: split, widget: boolean, default: false, hint: "オンにすると /business/{URL用の名前}/ が生成され、カードのリンク先も切り替わります" }
+      - { label: 独立ページの本文, name: body, widget: markdown, required: false }
+
+  # =========================================================================
+  # 章（01〜05）
+  # =========================================================================
+  - name: chapters
+    label: 章（01〜05）
+    label_singular: 章
+    description: "章名・問い・TOPの予告文・章扉の写真。章の順番とURLは変更しないでください。"
+    folder: site/src/content/chapters
+    extension: yaml
+    format: yaml
+    create: false
+    delete: false
+    summary: "{{num}} {{title}}"
+    fields:
+      - { label: 章番号, name: num, widget: string }
+      - { label: URL, name: slug, widget: string }
+      - { label: 章名, name: title, widget: string }
+      - { label: 英字, name: en, widget: string }
+      - { label: この章が答える問い, name: question, widget: string }
+      - { label: TOPの予告文, name: teaser, widget: text }
+      - { label: TOPのボタン文言, name: topCta, widget: string }
+      - { <<: *photo, label: 章扉の写真, name: hero }
+      - { label: TOP用の写真, name: topPhotos, widget: list, required: false, field: { <<: *photo, label: 写真, name: photo } }
+
+  # =========================================================================
+  # ページごとの原稿（1ファイル＝1ページ）
+  # =========================================================================
+  - name: pages
+    label: ページ原稿
+    description: "各ページ固有の原稿。【…】で書かれた箇所は仮置きです。正式原稿で置き換えてください。"
+    delete: false
+    files:
+      - name: top
+        label: TOP
+        file: site/src/content/settings/top.yaml
+        fields:
+          - { label: メインコピー, name: fvCopy, widget: text }
+          - { label: サブコピー, name: fvSub, widget: string, hint: "「沖縄の食を支える。」はTOPと05地域の2か所だけで使う" }
+          - { label: 補足一行, name: fvLead, widget: string }
+          - { label: ファーストビュー写真（3〜4枚）, name: fvPhotos, widget: list, field: { <<: *photo, label: 写真, name: photo } }
+          - { label: 04 人 ― 社内文化の一文, name: peopleCulture, widget: text, required: false }
+          - { <<: *photo, label: 採用セクションの写真, name: recruitPhoto }
+          - { <<: *photo, label: 会社情報セクションの写真, name: companyPhoto }
+
+      - name: about
+        label: 01 理念
+        file: site/src/content/settings/about.yaml
+        fields:
+          - { label: 経営理念, name: statement, widget: text }
+          - { label: 経営理念の補足, name: statementNote, widget: text, required: false }
+          - label: 理念に込めた意味
+            name: meanings
+            widget: list
+            summary: "{{fields.keyword}}"
+            fields:
+              - { label: キーワード, name: keyword, widget: string }
+              - { label: この言葉の意味, name: meaning, widget: text }
+              - { label: 現場ではこう現れる, name: inPractice, widget: text }
+              - { <<: *photo, label: 写真, name: photo }
+          - label: 代表メッセージ
+            name: message
+            widget: object
+            fields:
+              - { label: 見出し（メッセージ中の一文）, name: heading, widget: string }
+              - { label: 本文, name: body, widget: text }
+              - { label: 署名, name: signature, widget: string }
+              - { label: TOP・会社情報に出す抜粋, name: excerpt, widget: string }
+              - { label: 写真, name: photos, widget: list, field: { <<: *photo, label: 写真, name: photo } }
+          - label: 会社として大切にしていること
+            name: values
+            widget: list
+            summary: "{{fields.target}}"
+            fields:
+              - { label: 対象, name: target, widget: string }
+              - { label: 内容, name: text, widget: text }
+
+      - name: philosophy
+        label: 02 フィロソフィ
+        file: site/src/content/settings/philosophy.yaml
+        fields:
+          - { label: 前文, name: preface, widget: text }
+          - label: フィロソフィ項目
+            name: items
+            widget: list
+            hint: "正式原稿の項目数に合わせて増減できます（番号 02-1… は自動）"
+            summary: "{{fields.title}}"
+            fields:
+              - { label: 項目見出し, name: title, widget: string }
+              - { label: 整理枠（原稿が入ったら空に）, name: frame, widget: string, required: false }
+              - { label: 説明, name: body, widget: text }
+              - { label: 現場では（エピソード）, name: inPractice, widget: text }
+              - { <<: *photo, label: 写真, name: photo }
+              - { label: 関連リンク, name: related, widget: list, required: false, fields: [{ label: 表示名, name: label, widget: string }, { label: リンク先, name: href, widget: string }] }
+          - label: フィロソフィが表れる日常
+            name: scenes
+            widget: list
+            summary: "{{fields.title}}"
+            fields:
+              - { label: 場面, name: title, widget: string }
+              - { label: エピソード, name: body, widget: text }
+              - { <<: *photo, label: 写真, name: photo }
+
+      - name: business
+        label: 03 事業（ページ共通部分）
+        file: site/src/content/settings/business.yaml
+        fields:
+          - { label: リード, name: lead, widget: text }
+          - label: 図解「食材が届くまで」
+            name: flow
+            widget: list
+            summary: "{{fields.step}}"
+            fields:
+              - { label: 工程, name: step, widget: string }
+              - { label: 担当部署, name: dept, widget: string, required: false }
+          - label: 数字で見るイバノ
+            name: numbers
+            widget: list
+            summary: "{{fields.label}} {{fields.value}}{{fields.unit}}"
+            fields:
+              - { label: 項目, name: label, widget: string }
+              - { label: 数値, name: value, widget: string }
+              - { label: 単位, name: unit, widget: string, required: false }
+              - { label: クライアント確認済み, name: confirmed, widget: boolean, default: false }
+          - { label: 品質・物流への取り組み, name: quality, widget: text }
+          - { <<: *photo, label: 品質・物流の写真, name: qualityPhoto }
+
+      - name: people
+        label: 04 人
+        file: site/src/content/settings/people.yaml
+        fields:
+          - { label: 人についての考え方, name: stance, widget: text }
+          - { label: 社内文化の具体例, name: culture, widget: text, required: false }
+          - { <<: *photo, label: 考え方の写真, name: stancePhoto }
+          - label: 部署
+            name: departments
+            widget: list
+            summary: "{{fields.name}}"
+            fields:
+              - { label: 部署名, name: name, widget: string }
+              - { label: 何をする部署か, name: role, widget: text }
+              - { label: 人数, name: members, widget: string, required: false }
+              - { label: 社員の一言, name: comment, widget: string, required: false }
+              - { label: 関連インタビュー, name: interview, widget: relation, collection: interviews, search_fields: [name], value_field: "{{slug}}", display_fields: [name], required: false }
+              - { <<: *photo, label: 写真, name: photo }
+          - label: 1日の仕事
+            name: days
+            widget: list
+            summary: "{{fields.role}}"
+            fields:
+              - { label: 職種, name: role, widget: string }
+              - { label: スケジュール, name: schedule, widget: list, fields: [{ label: 時刻, name: time, widget: string }, { label: 内容, name: text, widget: string }] }
+          - { label: 働く環境, name: environment, widget: text }
+          - { label: 働く環境の写真, name: environmentPhotos, widget: list, field: { <<: *photo, label: 写真, name: photo } }
+          - { label: 採用への導線コピー, name: recruitCopy, widget: string }
+
+      - name: area
+        label: 05 地域
+        file: site/src/content/settings/area.yaml
+        fields:
+          - { label: リード, name: lead, widget: text }
+          - label: 関わりの軸
+            name: axes
+            widget: list
+            summary: "{{fields.title}}"
+            fields:
+              - { label: ID（英字）, name: key, widget: string }
+              - { label: 見出し, name: title, widget: string }
+              - { label: 本文, name: body, widget: text }
+              - { label: 実例, name: examples, widget: list, required: false }
+              - { <<: *photo, label: 写真, name: photo }
+              - { <<: *link, label: ボタン, name: cta, required: false }
+          - { label: これから目指すこと, name: future, widget: text }
+          - { <<: *photo, label: これから目指すことの写真, name: futurePhoto }
+          - { label: 結びの言葉, name: closing, widget: string }
+          - { <<: *photo, label: 結びの写真, name: closingPhoto }
+
+      - name: recruit
+        label: 採用サイト
+        file: site/src/content/settings/recruit.yaml
+        fields:
+          - { label: 採用メッセージ, name: message, widget: string }
+          - { label: リード, name: lead, widget: text }
+          - { <<: *photo, label: メイン写真, name: hero }
+          - { label: イバノで働く意味, name: meaning, widget: text }
+          - { <<: *photo, label: 働く意味の写真, name: meaningPhoto }
+          - { label: 代表メッセージ（求職者向け）, name: ceoMessage, widget: text }
+          - { label: 求める人物像, name: persona, widget: text }
+          - label: 数字で見るイバノ
+            name: numbers
+            widget: list
+            summary: "{{fields.label}} {{fields.value}}"
+            fields:
+              - { label: 項目, name: label, widget: string }
+              - { label: 値, name: value, widget: string }
+              - { label: クライアント確認済み, name: confirmed, widget: boolean, default: false }
+          - { label: 制度・福利厚生, name: benefits, widget: text }
+          - { label: 社内文化, name: culture, widget: text }
+          - { label: 教育・研修, name: training, widget: text }
+          - { label: 職場の写真, name: workplacePhotos, widget: list, field: { <<: *photo, label: 写真, name: photo } }
+          - label: 職種紹介
+            name: roles
+            widget: list
+            summary: "{{fields.name}}"
+            fields:
+              - { label: 職種名, name: name, widget: string }
+              - { label: 概要, name: summary, widget: text }
+              - { label: 仕事内容, name: duties, widget: text }
+              - { label: 1日の流れ, name: day, widget: text }
+              - { label: やりがい, name: rewarding, widget: text }
+              - { label: 大変なこと（正直に）, name: hard, widget: text }
+              - { label: 必要なスキル・資格, name: skills, widget: text }
+              - { label: キャリアの道筋, name: career, widget: text }
+              - { <<: *photo, label: 写真, name: photo }
+          - { label: 求人媒体からの応募案内, name: entryNote, widget: text }
+          - { label: 採用担当の連絡先, name: contact, widget: text }
+
+  # =========================================================================
+  # 会社データ
+  # =========================================================================
+  - name: data
+    label: 会社データ
+    delete: false
+    files:
+      - name: company
+        label: 会社情報・拠点
+        file: site/src/content/settings/company.yaml
+        fields:
+          - { label: 会社名, name: name, widget: string }
+          - { label: 英字社名, name: nameEn, widget: string }
+          - { <<: *fact, label: 創業, name: founded }
+          - { <<: *fact, label: 設立, name: established }
+          - { <<: *fact, label: 代表者, name: representative }
+          - { <<: *fact, label: 資本金, name: capital }
+          - { <<: *fact, label: 従業員数, name: employees }
+          - { <<: *fact, label: 郵便番号, name: postal }
+          - { <<: *fact, label: 本社所在地, name: address }
+          - { <<: *fact, label: 代表電話, name: tel }
+          - { <<: *fact, label: 受付時間, name: hours }
+          - label: 事業内容
+            name: business
+            widget: object
+            fields:
+              - { label: 値（1行1項目）, name: value, widget: text }
+              - { label: クライアント確認済み, name: confirmed, widget: boolean, default: false }
+          - { <<: *fact, label: 主要取引先, name: clients }
+          - { <<: *fact, label: 取引銀行, name: banks }
+          - label: 認定・加盟団体
+            name: certifications
+            widget: list
+            summary: "{{fields.name}}"
+            fields:
+              - { label: 名称, name: name, widget: string }
+              - { label: 補足, name: detail, widget: string, required: false }
+              - { label: クライアント確認済み, name: confirmed, widget: boolean, default: false }
+          - label: 拠点（本社・倉庫・店舗）
+            name: locations
+            widget: list
+            summary: "［{{fields.kind}}］{{fields.name}}"
+            hint: "種別「店舗」の拠点は、店舗情報ページと 03 事業 に自動表示されます"
+            fields:
+              - { label: 名称, name: name, widget: string }
+              - { label: 種別, name: kind, widget: select, options: [{ label: 本社, value: hq }, { label: 倉庫・物流, value: warehouse }, { label: 店舗, value: shop }] }
+              - { label: 住所, name: address, widget: string }
+              - { label: 電話, name: tel, widget: string, required: false }
+              - { label: 営業時間, name: hours, widget: string, required: false }
+              - { label: 定休日, name: holidays, widget: string, required: false }
+              - { label: 駐車場, name: parking, widget: string, required: false }
+              - { label: GoogleマップURL, name: mapUrl, widget: string, required: false }
+              - { label: 特徴, name: features, widget: text, required: false }
+              - { <<: *photo, label: 写真, name: photo }
+              - { label: クライアント確認済み, name: confirmed, widget: boolean, default: false }
+          - label: SNS
+            name: sns
+            widget: object
+            fields:
+              - { label: Facebook URL, name: facebook, widget: string, required: false }
+              - { label: Instagram URL, name: instagram, widget: string, required: false }
+          - { <<: *photo, label: 会社情報ページの写真, name: hero }
+
+      - name: history
+        label: 沿革
+        file: site/src/content/settings/history.yaml
+        fields:
+          - label: 沿革
+            name: entries
+            widget: list
+            summary: "{{fields.year}} {{fields.title}}"
+            hint: "会社情報には全件、01 理念「1963年からの歩み」には「歩みに表示」をオンにしたものだけが出ます（転機を5〜7つに絞る）"
+            fields:
+              - { label: 年, name: year, widget: string }
+              - { label: 月, name: month, widget: string, required: false }
+              - { label: 出来事, name: title, widget: string }
+              - { label: そのとき何を考えて決めたか, name: story, widget: text, required: false }
+              - { label: 01 理念の「歩み」に表示, name: milestone, widget: boolean, default: false }
+              - { <<: *photo, label: 写真, name: photo }
+              - { label: クライアント確認済み, name: confirmed, widget: boolean, default: false }
+
+      - name: contact
+        label: お問い合わせ・プライバシーポリシー
+        file: site/src/content/settings/contact.yaml
+        fields:
+          - { <<: *fact, label: 代表電話, name: tel }
+          - { <<: *fact, label: 受付時間, name: hours }
+          - { <<: *fact, label: 店舗電話, name: shopTel }
+          - label: 窓口
+            name: types
+            widget: list
+            summary: "{{fields.label}}"
+            fields:
+              - { label: ID（URLの ?type= に使う）, name: key, widget: string }
+              - { label: 窓口名, name: label, widget: string }
+              - { label: 説明, name: description, widget: string }
+          - { label: フォーム送信先URL（空ならNetlify Forms）, name: endpoint, widget: string, required: false }
+          - { label: プライバシーポリシー, name: privacy, widget: markdown }

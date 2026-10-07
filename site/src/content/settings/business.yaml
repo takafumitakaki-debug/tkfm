@@ -1,0 +1,15 @@
+lead: "【事業全体のリード原稿を配置】"
+flow:
+  - { step: 生産者（世界・県内）, dept: "" }
+  - { step: 調達・輸入, dept: "【担当部署名】" }
+  - { step: 保管・加工（倉庫）, dept: "【担当部署名】" }
+  - { step: 営業・提案, dept: "【担当部署名】" }
+  - { step: 配送, dept: "【担当部署名】" }
+  - { step: ホテル／飲食店／家庭, dept: "" }
+numbers:
+  - { label: 創業, value: "1963", unit: 年, confirmed: false }
+  - { label: 社員数, value: "147", unit: 名, confirmed: false }
+  - { label: 取引先数, value: "【要確認】", unit: "", confirmed: false }
+  - { label: 取扱国数, value: "【要確認】", unit: "", confirmed: false }
+quality: "【温度管理・衛生管理・配送体制・取得認証などを確認して配置】"
+qualityPhoto: { no: "18", note: 配送車両が並ぶ様子、倉庫内の整然とした棚 }

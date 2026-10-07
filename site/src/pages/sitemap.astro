@@ -1,0 +1,40 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { chapters, businesses, businessHref } from '../lib/data';
+const ch = await chapters();
+const biz = await businesses();
+const groups = [
+  { title: '物語（章）', links: ch.map((c) => ({ label: `${c.num} ${c.title}（${c.en}）`, href: `/${c.slug}/` })) },
+  { title: '03 事業', links: biz.map((b) => ({ label: b.data.name, href: b.id === 'shop' ? '/business/shop/' : businessHref(b) })) },
+  { title: '情報', links: [
+    { label: 'ニュース', href: '/news/' }, { label: '会社情報', href: '/company/' }, { label: '沿革', href: '/company/#history' },
+    { label: '拠点・アクセス', href: '/company/#access' }, { label: 'お問い合わせ', href: '/contact/' },
+  ] },
+  { title: '採用情報', links: [
+    { label: '採用トップ', href: '/recruit/' }, { label: 'イバノで働く意味', href: '/recruit/message/' }, { label: '仕事を知る', href: '/recruit/work/' },
+    { label: '人を知る', href: '/recruit/people/' }, { label: '働く環境', href: '/recruit/environment/' }, { label: '募集要項', href: '/recruit/jobs/' },
+    { label: 'エントリー', href: '/recruit/entry/' },
+  ] },
+  { title: 'その他', links: [{ label: 'プライバシーポリシー', href: '/privacy/' }] },
+];
+---
+<Base title="サイトマップ">
+  <PageHero en="Sitemap" title="サイトマップ" />
+  <section class="section">
+    <div class="container grid grid--3">
+      <a class="top" href="/">トップページ</a>
+      {groups.map((g) => (
+        <div>
+          <h2 class="h-lg">{g.title}</h2>
+          <ul>{g.links.map((l) => <li><a href={l.href}>{l.label}</a></li>)}</ul>
+        </div>
+      ))}
+    </div>
+  </section>
+</Base>
+<style>
+  .top { grid-column: 1 / -1; font-family: var(--ff-serif); font-size: var(--fs-lg); }
+  h2 { padding-bottom: var(--sp-2); border-bottom: 1px solid var(--c-ink); margin-bottom: var(--sp-3); }
+  ul { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--sp-2); }
+</style>

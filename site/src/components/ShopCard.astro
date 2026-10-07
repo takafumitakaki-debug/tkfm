@@ -1,0 +1,26 @@
+---
+import Photo from './Photo.astro';
+import { ph } from '../lib/text';
+interface Props { shop: any; }
+const { shop: s } = Astro.props;
+const rows = [
+  ['住所', s.address], ['電話', s.tel], ['営業時間', s.hours], ['定休日', s.holidays], ['駐車場', s.parking],
+].filter(([, v]) => v);
+---
+<article class="shop" data-reveal>
+  <Photo photo={s.photo} ratio="land" />
+  <div>
+    <h3 class="h-lg"><span set:html={ph(s.name)} />{!s.confirmed && <span class="check">要確認</span>}</h3>
+    {s.features && <p class="small shop__f" set:html={ph(s.features)} />}
+    <table class="table">
+      {rows.map(([k, v]) => <tr><th>{k}</th><td set:html={ph(v)} /></tr>)}
+    </table>
+    {s.mapUrl ? <a class="textlink" href={s.mapUrl} target="_blank" rel="noopener">Googleマップで見る</a> : <span class="ph">【Googleマップのリンクを配置】</span>}
+  </div>
+</article>
+<style>
+  .shop { display: grid; gap: var(--sp-5); }
+  .shop h3 { margin-bottom: var(--sp-2); }
+  .shop__f { margin-bottom: var(--sp-4); }
+  .shop .table { margin-bottom: var(--sp-4); }
+</style>

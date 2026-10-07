@@ -1,0 +1,35 @@
+---
+// /recruit/jobs/new-graduate/ と /recruit/jobs/mid-career/
+import Recruit from '../../../layouts/Recruit.astro';
+import PageHero from '../../../components/PageHero.astro';
+import { render } from 'astro:content';
+import { jobs, jobKinds } from '../../../lib/data';
+import { ph } from '../../../lib/text';
+export function getStaticPaths() {
+  return Object.keys(jobKinds).map((kind) => ({ params: { kind } }));
+}
+const kind = Astro.params.kind as keyof typeof jobKinds;
+const list = await Promise.all((await jobs(kind)).map(async (j) => ({ j, Content: (await render(j)).Content })));
+---
+<Recruit title={jobKinds[kind]}>
+  <PageHero en={kind === 'new-graduate' ? 'New Graduate' : 'Mid-career'} title={`${jobKinds[kind]} 募集要項`} />
+  <section class="section">
+    <div class="container container--text">
+      {list.length === 0 && <p>現在募集している職種はありません。</p>}
+      {list.map(({ j, Content }) => (
+        <article id={j.id} class="job">
+          <h2 class="h-xl"><span set:html={ph(j.data.title)} />{!j.data.open && <span class="tag">募集停止中</span>}</h2>
+          <table class="table">
+            {j.data.fields.map((f) => <tr><th>{f.label}</th><td set:html={ph(f.value)} /></tr>)}
+          </table>
+          <div class="prose"><Content /></div>
+          {j.data.open && <p><a class="btn btn--primary" href={`/recruit/entry/?job=${encodeURIComponent(j.data.title)}`}>この職種にエントリーする</a></p>}
+        </article>
+      ))}
+    </div>
+  </section>
+</Recruit>
+<style>
+  .job { display: grid; gap: var(--sp-5); padding-bottom: var(--sp-8); }
+  .job h2 { display: flex; gap: var(--sp-3); align-items: center; }
+</style>

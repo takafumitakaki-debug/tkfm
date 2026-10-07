@@ -1,0 +1,69 @@
+message: "【採用メッセージを配置】"
+lead: "【採用メッセージのリード（1〜2行）を配置】（現行「沖縄県の食をもっと豊かに」の扱いを要協議）"
+hero: { no: "14", note: 社員が働く姿（動画も可） }
+meaning: "【経営理念の要約＋「あなたの仕事が沖縄のどの食の場面につながるか」を配置】"
+meaningPhoto: { no: "02", note: 納品先の厨房 }
+ceoMessage: "【代表メッセージ（求職者向け）を配置】"
+persona: "【求める人物像を配置（フィロソフィと一致させる）】"
+numbers:
+  - { label: 社員数, value: 147名, confirmed: false }
+  - { label: 平均年齢, value: "【要確認】", confirmed: false }
+  - { label: 平均勤続年数, value: "【要確認】", confirmed: false }
+  - { label: 男女比, value: "【要確認】", confirmed: false }
+  - { label: 有給取得率, value: "【要確認】", confirmed: false }
+  - { label: 中途入社比率, value: "【要確認】", confirmed: false }
+benefits: "【実際の制度・福利厚生を配置】"
+culture: "【社内文化（誕生日カード、ハラスメントを許さない職場づくり等）を事実確認後に配置】"
+training: "【入社後の流れ・教育研修を配置】"
+workplacePhotos:
+  - { no: "22", note: 本社・事務所 }
+  - { no: "18", note: 倉庫 }
+  - { no: "12", note: 店舗 }
+roles:
+  - name: 営業
+    summary: "【職種の概要を配置】"
+    duties: "【仕事内容を配置】"
+    day: "【1日の流れを配置】"
+    rewarding: "【やりがいを配置】"
+    hard: "【大変なこと（正直に）を配置】"
+    skills: "【必要なスキル・資格を配置】"
+    career: "【キャリアの道筋を配置】"
+    photo: { no: "11" }
+  - name: 配送
+    summary: "【職種の概要を配置】"
+    duties: "【仕事内容を配置】"
+    day: "【1日の流れを配置】"
+    rewarding: "【やりがいを配置】"
+    hard: "【大変なこと（正直に）を配置】"
+    skills: "【必要なスキル・資格を配置】"
+    career: "【キャリアの道筋を配置】"
+    photo: { no: "01" }
+  - name: 倉庫・加工
+    summary: "【職種の概要を配置】"
+    duties: "【仕事内容を配置】"
+    day: "【1日の流れを配置】"
+    rewarding: "【やりがいを配置】"
+    hard: "【大変なこと（正直に）を配置】"
+    skills: "【必要なスキル・資格を配置】"
+    career: "【キャリアの道筋を配置】"
+    photo: { no: "10" }
+  - name: 店舗
+    summary: "【職種の概要を配置】"
+    duties: "【仕事内容を配置】"
+    day: "【1日の流れを配置】"
+    rewarding: "【やりがいを配置】"
+    hard: "【大変なこと（正直に）を配置】"
+    skills: "【必要なスキル・資格を配置】"
+    career: "【キャリアの道筋を配置】"
+    photo: { no: "03" }
+  - name: 事務
+    summary: "【職種の概要を配置】"
+    duties: "【仕事内容を配置】"
+    day: "【1日の流れを配置】"
+    rewarding: "【やりがいを配置】"
+    hard: "【大変なこと（正直に）を配置】"
+    skills: "【必要なスキル・資格を配置】"
+    career: "【キャリアの道筋を配置】"
+    photo: { no: "22" }
+entryNote: "【求人媒体経由の応募案内を配置】"
+contact: "【採用担当の連絡先を配置】"

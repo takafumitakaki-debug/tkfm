@@ -1,0 +1,30 @@
+---
+import Recruit from '../../../layouts/Recruit.astro';
+import PageHero from '../../../components/PageHero.astro';
+import { jobs, jobKinds } from '../../../lib/data';
+import { ph } from '../../../lib/text';
+const all = await jobs();
+---
+<Recruit title="募集要項">
+  <PageHero en="Jobs" title="募集職種・募集要項" />
+  <section class="section">
+    <div class="container grid grid--2">
+      {(Object.keys(jobKinds) as (keyof typeof jobKinds)[]).map((k) => {
+        const list = all.filter((j) => j.data.kind === k);
+        return (
+          <div>
+            <h2 class="h-xl" style="margin-bottom: var(--sp-5)">{jobKinds[k]}</h2>
+            <ul class="jl">
+              {list.map((j) => <li><a href={`/recruit/jobs/${k}/#${j.id}`}><span set:html={ph(j.data.title)} /><span class:list={['tag', { 'tag--accent': j.data.open }]}>{j.data.open ? '募集中' : '募集停止中'}</span></a></li>)}
+            </ul>
+            <p style="margin-top: var(--sp-5)"><a class="btn" href={`/recruit/jobs/${k}/`}>{jobKinds[k]}の募集要項</a></p>
+          </div>
+        );
+      })}
+    </div>
+  </section>
+</Recruit>
+<style>
+  .jl { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--c-ink); }
+  .jl a { display: flex; justify-content: space-between; align-items: center; gap: var(--sp-4); padding: var(--sp-4) 0; border-bottom: 1px solid var(--c-line); text-decoration: none; }
+</style>

@@ -1,0 +1,20 @@
+---
+// セクション見出し：英字ラベル＋日本語見出し（＋任意のリード）
+import { ph } from '../lib/text';
+interface Props { en?: string; title: string; lead?: string; level?: 'h2' | 'h3'; center?: boolean; }
+const { en, title, lead, level: H = 'h2', center = false } = Astro.props;
+---
+<header class:list={['sh', { 'sh--center': center }]} data-reveal>
+  {en && <span class="label">{en}</span>}
+  <H class="sh__title" set:html={ph(title)} />
+  {lead && <p class="sh__lead" set:html={ph(lead)} />}
+  <slot />
+</header>
+<style>
+  .sh { margin-bottom: var(--sp-7); max-width: var(--w-text); }
+  .sh--center { text-align: center; margin-inline: auto; }
+  .sh__title { font-size: var(--fs-xl); margin-top: var(--sp-2); }
+  .sh__lead { margin-top: var(--sp-4); color: var(--c-ink-2); }
+  :global(.section--deep) .label { color: var(--c-on-deep-2); }
+  :global(.section--deep) .sh__lead { color: var(--c-on-deep-2); }
+</style>

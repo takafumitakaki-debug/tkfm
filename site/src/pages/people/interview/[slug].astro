@@ -1,0 +1,12 @@
+---
+import Base from '../../../layouts/Base.astro';
+import InterviewDetail from '../../../components/InterviewDetail.astro';
+import { interviews } from '../../../lib/data';
+export async function getStaticPaths() {
+  return (await interviews()).map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+const { entry } = Astro.props;
+---
+<Base title={`社員インタビュー`}>
+  <InterviewDetail entry={entry} base="/people/interview" backLabel="04 人に戻る" backHref="/people/#interviews" />
+</Base>

@@ -1,0 +1,4 @@
+# 旧URL → 新URL（Netlify / Cloudflare Pages 形式）。現行サイトのURL一覧を入手したら追記する。
+/recruit/mid-career/   /recruit/jobs/mid-career/   301
+/recruit/mid-career    /recruit/jobs/mid-career/   301
+/company-data.html     /company/                   301

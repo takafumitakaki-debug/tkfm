@@ -1,0 +1,17 @@
+---
+// 章以外のページ見出し（COMPANY / NEWS / CONTACT など）。章番号は付けない。
+interface Props { en: string; title: string; lead?: string; }
+const { en, title, lead } = Astro.props;
+---
+<section class="ph-hero">
+  <div class="container">
+    <span class="label">{en}</span>
+    <h1>{title}</h1>
+    {lead && <p class="small">{lead}</p>}
+    <slot />
+  </div>
+</section>
+<style>
+  .ph-hero { padding: var(--sp-9) 0 var(--sp-7); border-bottom: 1px solid var(--c-line); }
+  h1 { font-size: var(--fs-2xl); margin: var(--sp-2) 0 var(--sp-3); }
+</style>

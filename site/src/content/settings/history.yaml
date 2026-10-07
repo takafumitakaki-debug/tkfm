@@ -1,0 +1,44 @@
+# 沿革。COMPANY には全件、ABOUT「1963年からの歩み」には milestone: true のものだけを表示する。
+entries:
+  - year: "1963"
+    month: "9"
+    title: 創業。オーストラリア出身のオーナーによる牛肉の輸入販売から始まる
+    story: "【そのとき何を考えて決めたかを配置】"
+    milestone: true
+    photo: { no: "05", note: 創業期の写真・当時の店舗・輸入牛肉 }
+    confirmed: false
+  - year: "1974"
+    month: "8"
+    title: 株式会社として設立
+    story: "【そのとき何を考えて決めたかを配置】"
+    milestone: true
+    photo: { no: "05", note: 当時の社屋・社員 }
+    confirmed: false
+  - year: "19XX"
+    title: "【業務用卸の本格化：年と内容を確認して配置】"
+    story: "【そのとき何を考えて決めたかを配置】"
+    milestone: true
+    photo: { no: "05", note: 当時の配送車・倉庫 }
+    confirmed: false
+  - year: "19XX"
+    title: "【イバノ牧港店 開店：年を確認して配置】"
+    story: "【そのとき何を考えて決めたかを配置】"
+    milestone: true
+    photo: { no: "05", note: 開店当時の店舗・チラシ }
+    confirmed: false
+  - year: "20XX"
+    title: "【本社移転（浦添市西洲）：年を確認して配置】"
+    milestone: false
+    photo: {}
+    confirmed: false
+  - year: "2020年代"
+    title: "【IVANO SELECT 開店：年と経緯を確認して配置】"
+    story: "【コロナ禍で業務用が落ち込む中、家庭向け販売を強化した経緯（要確認）を配置】"
+    milestone: true
+    photo: { no: "12", note: IVANO SELECT の売場 }
+    confirmed: false
+  - year: "20XX"
+    title: "【URASOE FRONTIER COMPANY 認定：年を確認して配置】"
+    milestone: true
+    photo: {}
+    confirmed: false

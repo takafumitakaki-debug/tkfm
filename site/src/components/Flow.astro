@@ -1,0 +1,39 @@
+---
+// 図解「食材が沖縄の食の場面に届くまで」。BUSINESS / PEOPLE / RECRUIT で共用し、
+// 第2行（部署名・職種名など）だけ視点に合わせて差し替える。
+import { ph } from '../lib/text';
+interface Props { steps: { step: string; dept?: string; href?: string }[]; title?: string; }
+const { steps, title = '食材が沖縄の食の場面に届くまで' } = Astro.props;
+---
+<figure class="flow" data-reveal>
+  <figcaption class="flow__cap">{title}</figcaption>
+  <ol class="flow__list">
+    {steps.map((s, i) => (
+      <li class:list={['flow__step', { 'is-end': i === 0 || i === steps.length - 1 }]}>
+        <span class="flow__i">{String(i + 1).padStart(2, '0')}</span>
+        <span class="flow__name" set:html={ph(s.step)} />
+        {s.dept && (s.href ? <a class="flow__dept" href={s.href} set:html={ph(s.dept)} /> : <span class="flow__dept" set:html={ph(s.dept)} />)}
+      </li>
+    ))}
+  </ol>
+</figure>
+<style>
+  .flow { margin: 0; }
+  .flow__cap { font-size: var(--fs-xs); letter-spacing: .15em; color: var(--c-ink-3); margin-bottom: var(--sp-4); }
+  .flow__list { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--sp-2); counter-reset: f; }
+  @media (min-width: 960px) { .flow__list { grid-auto-flow: column; grid-auto-columns: 1fr; gap: 0; } }
+  .flow__step { position: relative; display: flex; flex-direction: column; gap: 4px; padding: var(--sp-4) var(--sp-5); background: var(--c-card); border: 1px solid var(--c-line); }
+  .flow__step.is-end { background: transparent; border-style: dashed; }
+  @media (min-width: 960px) {
+    .flow__step { padding: var(--sp-5) var(--sp-4) var(--sp-5) var(--sp-5); min-height: 140px; }
+    .flow__step + .flow__step { border-left: 0; }
+    .flow__step:not(:last-child)::after { content: ""; position: absolute; right: -7px; top: 50%; width: 12px; height: 12px; background: inherit; border: 1px solid var(--c-line); border-left: 0; border-bottom: 0; transform: translateY(-50%) rotate(45deg); z-index: 1; }
+    .flow__step.is-end:not(:last-child)::after { background: var(--c-paper); border-style: dashed; }
+  }
+  @media (max-width: 959px) {
+    .flow__step:not(:last-child)::after { content: "↓"; position: absolute; left: 50%; bottom: -1.05em; translate: -50% 0; font-size: var(--fs-sm); color: var(--c-accent); z-index: 1; background: var(--c-paper); line-height: 1; padding: 2px; }
+  }
+  .flow__i { font-family: var(--ff-serif); font-size: var(--fs-xs); color: var(--c-accent); }
+  .flow__name { font-family: var(--ff-serif); font-weight: 600; font-size: var(--fs-md); line-height: 1.5; }
+  .flow__dept { font-size: var(--fs-xs); color: var(--c-ink-2); }
+</style>

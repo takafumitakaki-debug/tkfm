@@ -1,0 +1,103 @@
+---
+// デザインシステム一覧（社内・制作用。noindex）
+// トークンは src/styles/tokens.css、ルールは docs/06_design_system.md
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import ChapterLabel from '../components/ChapterLabel.astro';
+import SectionHead from '../components/SectionHead.astro';
+import Photo from '../components/Photo.astro';
+import Fact from '../components/Fact.astro';
+import Numbers from '../components/Numbers.astro';
+import Flow from '../components/Flow.astro';
+import ChapterChain from '../components/ChapterChain.astro';
+import NextChapter from '../components/NextChapter.astro';
+import Text from '../components/Text.astro';
+import { chapter } from '../lib/data';
+const { all } = await chapter('about');
+
+const colors = [
+  ['--c-paper', '背景'], ['--c-paper-2', '交互セクション'], ['--c-card', 'カード'], ['--c-ink', '本文'], ['--c-ink-2', '補足'],
+  ['--c-ink-3', 'キャプション'], ['--c-line', '罫線'], ['--c-accent', 'アクセント（CTA・章番号）'], ['--c-deep', '暗いセクション'],
+  ['--c-ph', '仮置き原稿（制作中のみ）'], ['--c-check', '要確認（制作中のみ）'],
+];
+const type = [
+  ['--fs-num', '章番号', '01'], ['--fs-2xl', '章の問い・ステートメント', 'なぜ、イバノはこの仕事を続けているのか。'],
+  ['--fs-xl', 'セクション見出し', '1963年からの歩み'], ['--fs-lg', '小見出し', 'ホテル・レストラン・居酒屋の厨房へ'],
+  ['--fs-md', 'リード', '食材が沖縄の食の場面に届くまで'], ['--fs-base', '本文', '県内のホテルの朝食、居酒屋のつまみ、家庭の焼肉。'],
+  ['--fs-sm', '補足・ナビ', '会社情報 ／ 店舗情報'], ['--fs-xs', 'ラベル・キャプション', 'PHOTO No.01'],
+];
+const space = ['--sp-1', '--sp-2', '--sp-3', '--sp-4', '--sp-5', '--sp-6', '--sp-7', '--sp-8', '--sp-9', '--sp-10'];
+---
+<Base title="スタイルガイド" noindex contact={false}>
+  <PageHero en="Design System" title="スタイルガイド" lead="色・文字・余白・部品の一覧。ページを作るときは、ここにある部品の組み合わせで作る。" />
+
+  <section class="section">
+    <div class="container">
+      <SectionHead en="Principles" title="デザインの原則" />
+      <ol class="pr">
+        <li><strong>1冊の本として読ませる。</strong>章番号（01〜05）を全ページで共通に使い、ページの最後は必ず「次の章へ」。</li>
+        <li><strong>紙とインク、アクセントは1色。</strong>赤（--c-accent）はCTA・章番号・強調にだけ使う。面で多用しない。</li>
+        <li><strong>写真の主役は人の手と現場。</strong>物撮り・記号的な沖縄（海・シーサー・赤瓦）は使わない。</li>
+        <li><strong>情報は余白の中に置く。</strong>数字・沿革・会社概要は表組みで淡々と。装飾で信頼感を作らない。</li>
+        <li><strong>原稿がない所は創作しない。</strong>【…】で仮置きし、公開前チェックで残数をゼロにする。</li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <SectionHead en="Color" title="色" />
+      <div class="sw">
+        {colors.map(([v, l]) => <div><span class="sw__chip" style={`background: var(${v})`} /><code>{v}</code><span class="small">{l}</span></div>)}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <SectionHead en="Typography" title="文字" lead="見出し：Noto Serif JP（明朝）／本文：Noto Sans JP（ゴシック）。本文の行間は 1.95、字間 0.04em。" />
+      <dl class="ty">
+        {type.map(([v, l, s]) => <div><dt><code>{v}</code><span class="small">{l}</span></dt><dd style={`font-size: var(${v}); font-family: ${v === '--fs-base' || v === '--fs-sm' || v === '--fs-xs' ? 'var(--ff-sans)' : 'var(--ff-serif)'}`}>{s}</dd></div>)}
+      </dl>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <SectionHead en="Space" title="余白" lead="4の倍数。セクションの上下は --section（64〜128px の可変）、画面端は --gutter（16〜48px）。" />
+      <div class="sp">{space.map((v) => <div><span style={`width: var(${v})`} /><code>{v}</code></div>)}</div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container stack" style="--stack: var(--sp-7)">
+      <SectionHead en="Components" title="部品" />
+      <div><h3 class="sg-h">ボタン</h3><div class="btn-row"><a class="btn btn--primary" href="#">お取引のご相談</a><a class="btn" href="#">事業について詳しく</a><a class="textlink" href="#">テキストリンク</a></div></div>
+      <div><h3 class="sg-h">章ラベル（ChapterLabel）</h3><ChapterLabel num="01" title="理念" en="ABOUT" /><div style="margin-top: var(--sp-5)"><ChapterLabel num="03" title="事業" en="BUSINESS" size="lg" /></div></div>
+      <div><h3 class="sg-h">セクション見出し（SectionHead）</h3><SectionHead en="History" title="1963年からの歩み" lead="リード文が入ります。" /></div>
+      <div><h3 class="sg-h">タグ</h3><span class="tag">お知らせ</span> <span class="tag tag--accent">フィロソフィ 02-3 と関連</span></div>
+      <div><h3 class="sg-h">写真枠（Photo）― 画像未設定時は撮影指示を表示</h3><div class="grid grid--3"><Photo photo={{ no: '02', note: 'ホテル厨房の勝手口での納品' }} /><Photo photo={{ no: '13', note: '社員ポートレート' }} ratio="portrait" /><Photo photo={{ no: '01' }} ratio="square" /></div></div>
+      <div><h3 class="sg-h">制作中の表示</h3><p><Text value="【経営理念原稿を配置】" /> ← 仮置き原稿 ／ 創業 <Fact fact={{ value: '1963年', confirmed: false }} /> ← 要確認</p></div>
+      <div><h3 class="sg-h">数字（Numbers）</h3><Numbers items={[{ label: '創業', value: '1963', unit: '年', confirmed: true }, { label: '社員数', value: '147', unit: '名' }, { label: '取引先数', value: '【要確認】' }, { label: '取扱国数', value: '35', unit: 'か国' }]} /></div>
+      <div><h3 class="sg-h">図解：流れ（Flow）</h3><Flow steps={[{ step: '生産者' }, { step: '調達・輸入', dept: '仕入部' }, { step: '保管・加工', dept: '物流部' }, { step: '配送' }, { step: 'ホテル／飲食店／家庭' }]} /></div>
+      <div><h3 class="sg-h">図解：章のつながり（ChapterChain）</h3><ChapterChain current="philosophy" /></div>
+      <div><h3 class="sg-h">表（.table）</h3><table class="table" style="max-width: 40em"><tr><th>会社名</th><td>株式会社イバノ</td></tr><tr><th>創業</th><td>1963年9月</td></tr></table></div>
+    </div>
+  </section>
+  <NextChapter next={all[1]} />
+</Base>
+<style>
+  .pr { display: grid; gap: var(--sp-3); max-width: 50em; }
+  .sw { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: var(--sp-5); }
+  .sw > div { display: grid; gap: 4px; }
+  .sw__chip { display: block; height: 72px; border: 1px solid var(--c-line); border-radius: var(--radius); }
+  code { font-size: var(--fs-xs); }
+  .ty > div { display: grid; gap: var(--sp-2); padding: var(--sp-4) 0; border-bottom: 1px solid var(--c-line); }
+  @media (min-width: 768px) { .ty > div { grid-template-columns: 14em 1fr; align-items: baseline; } }
+  .ty dt { display: grid; }
+  .ty dd { line-height: 1.4; }
+  .sp { display: grid; gap: var(--sp-2); }
+  .sp > div { display: flex; align-items: center; gap: var(--sp-4); }
+  .sp span { display: block; height: 16px; background: var(--c-accent); }
+  .sg-h { font-family: var(--ff-sans); font-size: var(--fs-xs); letter-spacing: .1em; color: var(--c-ink-3); margin-bottom: var(--sp-4); font-weight: 500; }
+</style>

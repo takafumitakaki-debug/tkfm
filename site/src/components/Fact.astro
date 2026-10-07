@@ -1,0 +1,7 @@
+---
+// 公開情報から仮置きした事実。confirmed=false の間は「要確認」バッジを付ける。
+import { ph } from '../lib/text';
+interface Props { fact: { value: string; confirmed?: boolean }; }
+const { fact } = Astro.props;
+---
+<Fragment set:html={ph(fact.value)} />{!fact.confirmed && <span class="check" title="クライアント確認待ち">要確認</span>}

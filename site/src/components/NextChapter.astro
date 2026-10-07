@@ -1,0 +1,34 @@
+---
+// 次の章へ（01〜05 各ページ最下部・必須）
+import { ph } from '../lib/text';
+interface Props { next: { num: string; title: string; en: string; question: string; slug: string } | null; }
+const { next } = Astro.props;
+---
+{next ? (
+  <nav class="nc" aria-label="次の章へ">
+    <a href={`/${next.slug}/`} class="container nc__in">
+      <span class="label">Next Chapter</span>
+      <span class="nc__row">
+        <span class="nc__num">{next.num}</span>
+        <span class="nc__body">
+          <span class="nc__title">{next.title}<small>{next.en}</small></span>
+          <span class="nc__q" set:html={ph(next.question)} />
+        </span>
+        <span class="nc__arrow" aria-hidden="true">→</span>
+      </span>
+    </a>
+  </nav>
+) : <slot />}
+<style>
+  .nc { background: var(--c-deep); color: var(--c-on-deep); }
+  .nc__in { display: block; padding-block: var(--sp-8); text-decoration: none; }
+  .nc .label { color: var(--c-on-deep-2); }
+  .nc__row { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: var(--sp-5); margin-top: var(--sp-4); }
+  .nc__num { font-family: var(--ff-serif); font-size: clamp(3rem, 2rem + 4vw, 6rem); line-height: 1; color: #d27a63; }
+  .nc__title { display: block; font-family: var(--ff-serif); font-size: var(--fs-xl); font-weight: 600; letter-spacing: .15em; }
+  .nc__title small { margin-left: 1em; font-family: var(--ff-sans); font-size: var(--fs-xs); letter-spacing: var(--ls-label); color: var(--c-on-deep-2); font-weight: 400; }
+  .nc__q { display: block; margin-top: var(--sp-2); color: var(--c-on-deep-2); }
+  .nc__arrow { font-size: var(--fs-xl); transition: transform var(--dur) var(--ease); }
+  .nc__in:hover { color: #fff; }
+  .nc__in:hover .nc__arrow { transform: translateX(8px); }
+</style>

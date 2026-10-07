@@ -1,0 +1,17 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from '../components/PageHero.astro';
+import { single } from '../lib/data';
+import { ph } from '../lib/text';
+const c = await single('contact');
+// privacy は簡易 Markdown（## 見出し と段落）として扱う
+const blocks = c.privacy.trim().split(/\n{2,}/).map((b) => b.startsWith('## ') ? { h: b.slice(3) } : { p: b });
+---
+<Base title="プライバシーポリシー">
+  <PageHero en="Privacy Policy" title="プライバシーポリシー" />
+  <section class="section">
+    <div class="container container--text prose">
+      {blocks.map((b) => (b.h ? <h2 set:html={ph(b.h)} /> : <p set:html={ph(b.p)} />))}
+    </div>
+  </section>
+</Base>

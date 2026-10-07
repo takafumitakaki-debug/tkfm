@@ -1,0 +1,55 @@
+---
+import { chapters, single } from '../lib/data';
+import Fact from './Fact.astro';
+const list = await chapters();
+const co = await single('company');
+const year = new Date().getFullYear();
+---
+<footer class="ft">
+  <div class="container ft__in">
+    <div class="ft__co">
+      <a href="/" class="ft__logo">IVANO</a>
+      <p class="ft__name">{co.name}</p>
+      <address class="small">
+        〒<Fact fact={co.postal} /><br />
+        <Fact fact={co.address} /><br />
+        TEL <Fact fact={co.tel} />
+      </address>
+    </div>
+    <nav class="ft__nav" aria-label="フッターナビゲーション">
+      <ul class="ft__chapters">
+        {list.map((c) => <li><a href={`/${c.slug}/`}><span class="n">{c.num}</span>{c.title}</a></li>)}
+      </ul>
+      <ul>
+        <li><a href="/news/">ニュース</a></li>
+        <li><a href="/company/">会社情報</a></li>
+        <li><a href="/business/shop/">店舗情報</a></li>
+        <li><a href="/recruit/">採用情報</a></li>
+        <li><a href="/contact/">お問い合わせ</a></li>
+      </ul>
+      <ul class="ft__sub">
+        <li><a href="/privacy/">プライバシーポリシー</a></li>
+        <li><a href="/sitemap/">サイトマップ</a></li>
+        {co.sns.facebook && <li><a href={co.sns.facebook} rel="noopener">Facebook</a></li>}
+        {co.sns.instagram && <li><a href={co.sns.instagram} rel="noopener">Instagram</a></li>}
+      </ul>
+    </nav>
+  </div>
+  <p class="container ft__copy">© {year} {co.nameEn}</p>
+</footer>
+<style>
+  .ft { background: var(--c-deep); color: var(--c-on-deep); padding-top: var(--sp-8); }
+  .ft a { text-decoration: none; }
+  .ft a:hover { color: #fff; text-decoration: underline; }
+  .ft__in { display: grid; gap: var(--sp-7); }
+  @media (min-width: 960px) { .ft__in { grid-template-columns: 1fr 2fr; } }
+  .ft__logo { font-family: var(--ff-serif); font-size: 1.75rem; letter-spacing: .28em; }
+  .ft__name { margin: var(--sp-3) 0 var(--sp-2); font-weight: 500; }
+  .ft address { font-style: normal; color: var(--c-on-deep-2); }
+  .ft__nav { display: grid; gap: var(--sp-5); }
+  .ft ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-5); font-size: var(--fs-sm); }
+  .ft__chapters { font-family: var(--ff-serif); font-size: var(--fs-md) !important; }
+  .ft__chapters .n { color: #d27a63; margin-right: .4em; font-size: var(--fs-sm); }
+  .ft__sub { font-size: var(--fs-xs) !important; color: var(--c-on-deep-2); }
+  .ft__copy { margin-top: var(--sp-8); padding-block: var(--sp-5); border-top: 1px solid rgba(255,255,255,.12); font-size: var(--fs-xs); color: var(--c-on-deep-2); letter-spacing: .1em; }
+</style>

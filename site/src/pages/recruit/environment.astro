@@ -1,0 +1,37 @@
+---
+import Recruit from '../../layouts/Recruit.astro';
+import PageHero from '../../components/PageHero.astro';
+import SectionHead from '../../components/SectionHead.astro';
+import Numbers from '../../components/Numbers.astro';
+import Photo from '../../components/Photo.astro';
+import Text from '../../components/Text.astro';
+import { single } from '../../lib/data';
+const r = await single('recruit');
+---
+<Recruit title="働く環境">
+  <PageHero en="Environment" title="働く環境" />
+  <section class="section">
+    <div class="container">
+      <SectionHead en="Numbers" title="数字で見るイバノ" />
+      <div style="--cols: 3"><Numbers items={r.numbers} /></div>
+    </div>
+  </section>
+  {[
+    { en: 'Benefits', t: '制度・福利厚生', v: r.benefits },
+    { en: 'Culture', t: '社内文化', v: r.culture },
+    { en: 'Training', t: '教育・研修', v: r.training },
+  ].map((s, i) => (
+    <section class:list={['section', { 'section--alt': i % 2 === 0 }]}>
+      <div class="container container--text">
+        <SectionHead en={s.en} title={s.t} />
+        <Text as="p" value={s.v} />
+      </div>
+    </section>
+  ))}
+  <section class="section">
+    <div class="container">
+      <SectionHead en="Workplace" title="職場紹介" />
+      <div class="grid grid--3">{r.workplacePhotos.map((p) => <Photo photo={p} ratio="land" />)}</div>
+    </div>
+  </section>
+</Recruit>

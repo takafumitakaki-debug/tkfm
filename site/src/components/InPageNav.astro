@@ -1,0 +1,17 @@
+---
+// 章内ナビ（ページ内アンカー）
+interface Props { items: { label: string; href: string }[]; }
+const { items } = Astro.props;
+---
+<nav class="ipn" aria-label="このページの内容">
+  <ul class="container">
+    {items.map((i) => <li><a href={i.href}>{i.label}</a></li>)}
+  </ul>
+</nav>
+<style>
+  .ipn { border-bottom: 1px solid var(--c-line); background: var(--c-paper); }
+  ul { list-style: none; display: flex; gap: var(--sp-5); overflow-x: auto; padding-block: var(--sp-4); margin-block: 0; scrollbar-width: none; }
+  a { font-size: var(--fs-sm); white-space: nowrap; text-decoration: none; color: var(--c-ink-2); }
+  a::before { content: "↓"; margin-right: .4em; color: var(--c-accent); font-size: var(--fs-xs); }
+  a:hover { color: var(--c-accent); }
+</style>

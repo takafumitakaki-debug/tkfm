@@ -1,0 +1,68 @@
+---
+// 採用サブサイト共通レイアウト（独自ナビ＋「コーポレートサイトへ戻る」）
+import Base from './Base.astro';
+interface Props { title?: string; description?: string; }
+const { title, description } = Astro.props;
+const path = Astro.url.pathname;
+const nav = [
+  { label: '働く意味', href: '/recruit/message/' },
+  { label: '仕事を知る', href: '/recruit/work/' },
+  { label: '人を知る', href: '/recruit/people/' },
+  { label: '働く環境', href: '/recruit/environment/' },
+  { label: '募集要項', href: '/recruit/jobs/' },
+];
+---
+<Base title={title ? `${title}｜採用情報` : '採用情報'} description={description} contact={false} header="none">
+  <header slot="header" class="rh">
+    <div class="rh__in">
+      <a href="/recruit/" class="rh__logo"><span class="rh__mark">IVANO</span><span class="rh__sub">RECRUIT 採用情報</span></a>
+      <nav aria-label="採用サイトナビゲーション">
+        <ul>
+          {nav.map((n) => <li><a href={n.href} aria-current={path.startsWith(n.href) ? 'page' : undefined}>{n.label}</a></li>)}
+        </ul>
+      </nav>
+      <a href="/recruit/entry/" class="btn btn--primary rh__entry">エントリー</a>
+      <a href="/" class="rh__back">コーポレートサイトへ戻る</a>
+    </div>
+  </header>
+  <slot />
+  <section class="re">
+    <div class="container re__in">
+      <div>
+        <span class="label">Entry</span>
+        <p class="h-xl serif">イバノで働くことに、興味を持った方へ。</p>
+      </div>
+      <div class="btn-row">
+        <a class="btn btn--primary" href="/recruit/entry/">エントリーする</a>
+        <a class="btn" href="/recruit/jobs/">募集要項を見る</a>
+        <a class="btn" href="/contact/?type=recruit">採用について問い合わせる</a>
+      </div>
+    </div>
+  </section>
+</Base>
+<style>
+  .rh { position: sticky; top: 0; z-index: 100; background: var(--c-deep); color: var(--c-on-deep); }
+  .rh__in { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-2) var(--sp-5); min-height: var(--header-h); padding: var(--sp-2) var(--gutter); max-width: 1440px; margin-inline: auto; }
+  .rh a { text-decoration: none; }
+  .rh__logo { display: flex; align-items: baseline; gap: .8em; }
+  .rh__mark { font-family: var(--ff-serif); font-size: 1.25rem; letter-spacing: .28em; }
+  .rh__sub { font-size: var(--fs-xs); letter-spacing: .15em; color: var(--c-on-deep-2); }
+  nav { margin-left: auto; overflow-x: auto; scrollbar-width: none; }
+  nav ul { list-style: none; display: flex; gap: var(--sp-5); margin: 0; padding: 0; }
+  nav a { font-size: var(--fs-sm); white-space: nowrap; border-bottom: 1px solid transparent; padding: 4px 0; }
+  nav a:hover { color: #fff; }
+  nav a[aria-current="page"] { border-bottom-color: #d27a63; }
+  .rh__entry { min-height: 40px; padding: 0 1.2em; }
+  .rh__back { font-size: var(--fs-xs); color: var(--c-on-deep-2); }
+  @media (max-width: 959px) {
+    nav { order: 10; width: 100%; margin-left: 0; padding-bottom: var(--sp-2); }
+    .rh__entry { margin-left: auto; }
+    .rh__back { display: none; }
+    .rh__sub { display: none; }
+    .rh__in { flex-wrap: wrap; }
+  }
+  .re { padding-block: var(--sp-9); background: var(--c-paper-2); }
+  .re__in { display: grid; gap: var(--sp-5); align-items: center; }
+  @media (min-width: 960px) { .re__in { grid-template-columns: 1fr auto; } }
+  .re .h-xl { margin-top: var(--sp-2); }
+</style>

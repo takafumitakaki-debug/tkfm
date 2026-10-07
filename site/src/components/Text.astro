@@ -1,0 +1,8 @@
+---
+// CMS の短いテキストを表示（【…】の強調・改行対応）
+import { ph } from '../lib/text';
+import type { HTMLTag } from 'astro/types';
+interface Props { value?: string | null; as?: HTMLTag; class?: string; }
+const { value, as: Tag = 'span', class: cls } = Astro.props;
+---
+<Tag class={cls} set:html={ph(value)} />

@@ -1,0 +1,28 @@
+---
+// 店舗情報（ヘッダーのユーティリティナビから直行できる実用ページ）
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import ShopCard from '../../components/ShopCard.astro';
+import BusinessBlock from '../../components/BusinessBlock.astro';
+import { single, businesses } from '../../lib/data';
+const co = await single('company');
+const shops = co.locations.filter((l) => l.kind === 'shop');
+const list = await businesses();
+const idx = list.findIndex((b) => b.id === 'shop');
+---
+<Base title="店舗情報" description="イバノ牧港店・IVANO SELECT の所在地・営業時間・定休日。">
+  <PageHero en="Shop" title="店舗情報" lead="03 事業 ― 家庭の食卓へ" />
+  <section class="section">
+    <div class="container grid grid--2">
+      {shops.map((s) => <ShopCard shop={s} />)}
+    </div>
+  </section>
+  {idx >= 0 && (
+    <section class="section section--alt">
+      <div class="container"><BusinessBlock entry={list[idx]} index={idx} /></div>
+    </section>
+  )}
+  <section class="section">
+    <div class="container"><a class="btn" href="/business/">03 事業をすべて見る</a></div>
+  </section>
+</Base>

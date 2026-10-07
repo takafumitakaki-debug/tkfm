@@ -1,0 +1,17 @@
+---
+// 章ラベル：「01 理念 / ABOUT」
+interface Props { num: string; title: string; en: string; size?: 'sm' | 'lg'; }
+const { num, title, en, size = 'sm' } = Astro.props;
+---
+<p class:list={['cl', `cl--${size}`]}><span class="cl__num">{num}</span><span class="cl__title">{title}</span><span class="cl__en">{en}</span></p>
+<style>
+  .cl { display: flex; align-items: baseline; gap: .8em; margin: 0; }
+  .cl__num { font-family: var(--ff-serif); color: var(--c-accent); font-weight: 500; letter-spacing: .05em; }
+  .cl__title { font-weight: 600; letter-spacing: .15em; }
+  .cl__en { font-size: var(--fs-xs); letter-spacing: var(--ls-label); color: var(--c-ink-3); }
+  .cl--sm .cl__num { font-size: var(--fs-lg); }
+  .cl--sm .cl__title { font-size: var(--fs-sm); }
+  .cl--lg .cl__num { font-size: var(--fs-num); line-height: 1; font-weight: 400; }
+  .cl--lg .cl__title { font-size: var(--fs-lg); }
+  .cl--lg { flex-wrap: wrap; column-gap: var(--sp-5); }
+</style>

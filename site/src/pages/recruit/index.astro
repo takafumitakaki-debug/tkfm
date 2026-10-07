@@ -1,0 +1,95 @@
+---
+import Recruit from '../../layouts/Recruit.astro';
+import Photo from '../../components/Photo.astro';
+import Text from '../../components/Text.astro';
+import SectionHead from '../../components/SectionHead.astro';
+import Numbers from '../../components/Numbers.astro';
+import InterviewCard from '../../components/InterviewCard.astro';
+import { single, interviews, jobs, jobKinds } from '../../lib/data';
+import { ph } from '../../lib/text';
+const r = await single('recruit');
+const people = (await interviews()).slice(0, 4);
+const open = (await jobs()).filter((j) => j.data.open);
+---
+<Recruit>
+  <section class="rfv">
+    <div class="rfv__photo"><Photo photo={r.hero} ratio="wide" eager /></div>
+    <div class="container rfv__copy">
+      <span class="label">Recruit</span>
+      <Text as="h1" class="rfv__title" value={r.message} />
+      <Text as="p" value={r.lead} />
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container grid grid--2" style="align-items: center">
+      <div class="stack">
+        <SectionHead en="Why IVANO" title="イバノで働く意味" />
+        <Text as="p" value={r.meaning} />
+        <a class="btn" href="/recruit/message/">働く意味を読む</a>
+      </div>
+      <Photo photo={r.meaningPhoto} ratio="land" />
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <SectionHead en="Numbers" title="数字で見るイバノ" />
+      <div style="--cols: 3"><Numbers items={r.numbers} /></div>
+      <p style="margin-top: var(--sp-6)"><a class="textlink" href="/recruit/environment/">働く環境を見る</a></p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <SectionHead en="Work" title="仕事を知る" />
+      <div class="grid grid--3">
+        {r.roles.map((role, i) => (
+          <a class="role" href={`/recruit/work/#role-${i + 1}`} data-reveal>
+            <Photo photo={role.photo} ratio="land" />
+            <h3 class="h-lg">{role.name}</h3>
+            <Text as="p" class="small" value={role.summary} />
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section section--alt">
+    <div class="container">
+      <SectionHead en="People" title="人を知る" />
+      <div class="grid grid--4">{people.map((p) => <InterviewCard entry={p} base="/recruit/people" headline="recruit" />)}</div>
+      <p style="margin-top: var(--sp-6)"><a class="btn" href="/recruit/people/">インタビュー一覧</a></p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <SectionHead en="Jobs" title="募集職種" />
+      <div class="grid grid--2">
+        {(Object.keys(jobKinds) as (keyof typeof jobKinds)[]).map((k) => (
+          <a class="kind" href={`/recruit/jobs/${k}/`}>
+            <strong class="h-lg serif">{jobKinds[k]}</strong>
+            <span class="kind__list">{open.filter((j) => j.data.kind === k).map((j) => <span class="tag" set:html={ph(j.data.title)} />)}</span>
+            {open.filter((j) => j.data.kind === k).length === 0 && <span class="small">現在募集している職種はありません</span>}
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+</Recruit>
+<style>
+  .rfv { position: relative; display: grid; min-height: 80svh; background: var(--c-deep); color: #fff; overflow: hidden; }
+  .rfv__photo { position: absolute; inset: 0; }
+  .rfv__photo :global(.photo), .rfv__photo :global(.photo__ph), .rfv__photo :global(img) { height: 100%; aspect-ratio: auto; border-radius: 0; }
+  .rfv::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(20,18,16,.75), transparent 60%); }
+  .rfv__copy { position: relative; z-index: 1; align-self: end; padding-bottom: var(--sp-9); display: grid; gap: var(--sp-4); }
+  .rfv .label { color: rgba(255,255,255,.7); }
+  .rfv__title { font-size: var(--fs-2xl); font-weight: 500; letter-spacing: .12em; }
+  .role { display: grid; gap: var(--sp-2); text-decoration: none; }
+  .role h3 { margin-top: var(--sp-3); }
+  .kind { display: grid; gap: var(--sp-3); padding: var(--sp-6); border: 1px solid var(--c-ink); text-decoration: none; position: relative; }
+  .kind::after { content: "→"; position: absolute; right: var(--sp-6); top: var(--sp-6); color: var(--c-accent); }
+  .kind:hover { background: var(--c-card); color: inherit; }
+  .kind__list { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+</style>

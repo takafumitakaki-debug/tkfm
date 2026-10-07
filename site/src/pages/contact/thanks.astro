@@ -1,0 +1,16 @@
+---
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+---
+<Base title="送信完了" noindex contact={false}>
+  <PageHero en="Thank you" title="お問い合わせを受け付けました" />
+  <section class="section">
+    <div class="container container--text stack">
+      <p>お問い合わせいただき、ありがとうございます。内容を確認のうえ、担当者よりご連絡いたします。</p>
+      <p class="small">【返信までの目安日数を確認して配置】</p>
+      <hr />
+      <p>お待ちいただく間に、イバノについて読んでみませんか。</p>
+      <p><a class="btn" href="/about/">01 理念から読む</a></p>
+    </div>
+  </section>
+</Base>

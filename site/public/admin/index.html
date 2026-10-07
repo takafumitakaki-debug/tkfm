@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>イバノ サイト管理</title>
+</head>
+<body>
+  <!-- Decap CMS：設定は同じフォルダの config.yml。使い方は docs/08_cms.md -->
+  <script src="https://unpkg.com/decap-cms@^3.6.0/dist/decap-cms.js"></script>
+  <script>
+    // 編集プレビューに本番と同じ「仮置き原稿」「要確認」の見え方を出す
+    CMS.registerPreviewStyle('/admin/preview.css');
+  </script>
+</body>
+</html>

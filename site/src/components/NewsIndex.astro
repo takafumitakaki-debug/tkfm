@@ -1,0 +1,40 @@
+---
+import Base from '../layouts/Base.astro';
+import PageHero from './PageHero.astro';
+import NewsList from './NewsList.astro';
+import { newsCategories, NEWS_PER_PAGE as PER_PAGE } from '../lib/data';
+interface Props { items: any[]; page: number; category?: keyof typeof newsCategories; all?: boolean; }
+const { items, page, category, all = false } = Astro.props;
+const pages = all ? 1 : Math.max(1, Math.ceil(items.length / PER_PAGE));
+const shown = all ? items : items.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+const pageHref = (n: number) => (n === 1 ? '/news/' : `/news/page/${n}/`);
+---
+<Base title={category ? `お知らせ（${newsCategories[category]}）` : 'お知らせ'}>
+  <PageHero en="News" title="お知らせ" />
+  <section class="section">
+    <div class="container">
+      <nav class="cats" aria-label="カテゴリ">
+        <a href="/news/" aria-current={!category ? 'page' : undefined}>すべて</a>
+        {Object.entries(newsCategories).map(([k, v]) => <a href={`/news/category/${k}/`} aria-current={category === k ? 'page' : undefined}>{v}</a>)}
+      </nav>
+      <NewsList items={shown} />
+      {pages > 1 && (
+        <nav class="pg" aria-label="ページ送り">
+          {Array.from({ length: pages }, (_, i) => i + 1).map((n) => <a href={pageHref(n)} aria-current={n === page ? 'page' : undefined}>{n}</a>)}
+        </nav>
+      )}
+    </div>
+  </section>
+  <script is:inline>
+    // 旧形式 /news/?category=area を静的なカテゴリページへ
+    (function () { var c = new URLSearchParams(location.search).get('category'); if (c && location.pathname === '/news/') location.replace('/news/category/' + encodeURIComponent(c) + '/'); })();
+  </script>
+</Base>
+<style>
+  .cats { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-bottom: var(--sp-6); }
+  .cats a { padding: 6px 16px; border: 1px solid var(--c-line); border-radius: 999px; font-size: var(--fs-sm); text-decoration: none; background: var(--c-card); }
+  .cats a[aria-current="page"] { background: var(--c-ink); color: var(--c-paper); border-color: var(--c-ink); }
+  .pg { display: flex; gap: var(--sp-2); justify-content: center; margin-top: var(--sp-7); }
+  .pg a { display: grid; place-items: center; width: 44px; height: 44px; border: 1px solid var(--c-line); text-decoration: none; }
+  .pg a[aria-current="page"] { background: var(--c-ink); color: var(--c-paper); }
+</style>

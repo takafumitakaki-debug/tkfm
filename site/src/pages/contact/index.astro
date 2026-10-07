@@ -1,0 +1,153 @@
+---
+// お問い合わせ：窓口4種／?type= で初期選択／入力 → 確認 → 送信 → 完了
+// 送信先：settings/contact.yaml の endpoint。未設定なら Netlify Forms（data-netlify）で受ける。
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import Fact from '../../components/Fact.astro';
+import { single } from '../../lib/data';
+const c = await single('contact');
+const action = c.endpoint || '/contact/thanks/';
+---
+<Base title="お問い合わせ" contact={false}>
+  <PageHero en="Contact" title="お問い合わせ" lead="ご用件に合わせて窓口をお選びください。">
+    <p class="tel">お電話でのお問い合わせ　<strong>TEL <Fact fact={c.tel} /></strong>（受付 <Fact fact={c.hours} />）<br />店舗について　<Fact fact={c.shopTel} /></p>
+  </PageHero>
+  <section class="section">
+    <div class="container container--text">
+      <form id="contact" name="contact" method="POST" action={action} data-netlify={c.endpoint ? undefined : 'true'} netlify-honeypot="bot-field" novalidate>
+        <input type="hidden" name="form-name" value="contact" />
+        <p hidden><label>この欄は空のままにしてください <input name="bot-field" /></label></p>
+
+        <fieldset class="types">
+          <legend class="f-label">お問い合わせの種類 <span class="req">必須</span></legend>
+          {c.types.map((t, i) => (
+            <label class="type">
+              <input type="radio" name="type" value={t.key} required checked={i === 0} />
+              <span class="type__l">{t.label}</span>
+              <span class="type__d">{t.description}</span>
+            </label>
+          ))}
+        </fieldset>
+
+        <p class="note-recruit" data-show="recruit" hidden>
+          採用へのご応募は <a href="/recruit/entry/">エントリーページ</a> から受け付けています。採用に関するご質問はこのフォームからどうぞ。
+        </p>
+
+        <div class="fields">
+          <label class="f"><span class="f-label">会社名・店舗名</span><input name="company" autocomplete="organization" /></label>
+          <label class="f"><span class="f-label">お名前 <span class="req">必須</span></span><input name="name" required autocomplete="name" /></label>
+          <label class="f"><span class="f-label">メールアドレス <span class="req">必須</span></span><input type="email" name="email" required autocomplete="email" /></label>
+          <label class="f"><span class="f-label">電話番号</span><input type="tel" name="tel" autocomplete="tel" /></label>
+
+          <div class="biz" data-show="business">
+            <fieldset class="f">
+              <legend class="f-label">業態</legend>
+              <div class="chips">
+                {['ホテル', 'レストラン', '居酒屋', '小売', 'その他'].map((v) => <label><input type="radio" name="industry" value={v} />{v}</label>)}
+              </div>
+            </fieldset>
+            <label class="f"><span class="f-label">所在地</span><input name="location" placeholder="例：那覇市" /></label>
+            <label class="f"><span class="f-label">ご希望の食材</span><input name="items" placeholder="例：県産黒毛和牛、輸入牛 など" /></label>
+            <label class="f"><span class="f-label">現在の発注頻度</span><input name="frequency" placeholder="例：週3回" /></label>
+          </div>
+
+          <label class="f"><span class="f-label">お問い合わせ内容 <span class="req">必須</span></span><textarea name="message" rows="7" required></textarea></label>
+          <label class="agree"><input type="checkbox" name="agree" required /> <span><a href="/privacy/" target="_blank">プライバシーポリシー</a>に同意する</span></label>
+        </div>
+
+        <div class="confirm" hidden>
+          <h2 class="h-lg">入力内容のご確認</h2>
+          <dl class="confirm__list"></dl>
+        </div>
+
+        <p class="err" role="alert" hidden>未入力の必須項目があります。</p>
+        <div class="btn-row actions">
+          <button type="button" class="btn btn--primary js-to-confirm">入力内容を確認する</button>
+          <button type="button" class="btn btn--plain js-back" hidden>修正する</button>
+          <button type="submit" class="btn btn--primary js-submit" hidden>送信する</button>
+        </div>
+      </form>
+    </div>
+  </section>
+</Base>
+
+<script>
+  const form = document.getElementById('contact') as HTMLFormElement;
+  const q = <T extends Element>(s: string) => form.querySelector<T>(s)!;
+  const typeInputs = form.querySelectorAll<HTMLInputElement>('input[name="type"]');
+
+  // ?type= で初期選択
+  const initial = new URLSearchParams(location.search).get('type');
+  typeInputs.forEach((i) => { if (i.value === initial) i.checked = true; });
+
+  const sync = () => {
+    const t = form.querySelector<HTMLInputElement>('input[name="type"]:checked')?.value;
+    form.querySelectorAll<HTMLElement>('[data-show]').forEach((el) => { el.hidden = el.dataset.show !== t; });
+  };
+  typeInputs.forEach((i) => i.addEventListener('change', sync));
+  sync();
+
+  const setMode = (confirming: boolean) => {
+    q<HTMLElement>('.types').hidden = confirming;
+    q<HTMLElement>('.fields').hidden = confirming;
+    q<HTMLElement>('.confirm').hidden = !confirming;
+    q<HTMLElement>('.js-to-confirm').hidden = confirming;
+    q<HTMLElement>('.js-back').hidden = !confirming;
+    q<HTMLElement>('.js-submit').hidden = !confirming;
+    if (!confirming) sync();
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  q('.js-to-confirm').addEventListener('click', () => {
+    const visible = [...form.querySelectorAll<HTMLInputElement>('[required]')].filter((el) => !el.closest('[hidden]'));
+    const bad = visible.filter((el) => !el.checkValidity());
+    q<HTMLElement>('.err').hidden = bad.length === 0;
+    if (bad.length) { bad[0].focus(); return; }
+    const list = q<HTMLElement>('.confirm__list');
+    list.innerHTML = '';
+    const data = new FormData(form);
+    form.querySelectorAll<HTMLElement>('.f, .types').forEach((f) => {
+      if (f.closest('[hidden]')) return;
+      const label = f.querySelector('.f-label')?.firstChild?.textContent?.trim();
+      const input = f.querySelector<HTMLInputElement>('input, textarea');
+      if (!label || !input) return;
+      let value = String(data.get(input.name) ?? '');
+      if (input.name === 'type') value = form.querySelector<HTMLInputElement>('input[name="type"]:checked')?.parentElement?.querySelector('.type__l')?.textContent ?? value;
+      const dt = document.createElement('dt'); dt.textContent = label;
+      const dd = document.createElement('dd'); dd.textContent = value || '―';
+      list.append(dt, dd);
+    });
+    setMode(true);
+  });
+  q('.js-back').addEventListener('click', () => setMode(false));
+</script>
+
+<style>
+  .tel { margin-top: var(--sp-5); font-size: var(--fs-sm); }
+  form { display: grid; gap: var(--sp-6); }
+  fieldset { border: 0; padding: 0; margin: 0; }
+  .f-label { display: block; font-size: var(--fs-sm); font-weight: 500; margin-bottom: var(--sp-2); }
+  .req { margin-left: .4em; padding: 0 .5em; font-size: var(--fs-xs); color: #fff; background: var(--c-accent); border-radius: var(--radius); }
+  .types { display: grid; gap: var(--sp-2); }
+  @media (min-width: 600px) { .types { grid-template-columns: 1fr 1fr; } .types legend { grid-column: 1 / -1; } }
+  .type { display: grid; grid-template-columns: auto 1fr; gap: 0 var(--sp-3); padding: var(--sp-4); border: 1px solid var(--c-line); background: var(--c-card); cursor: pointer; }
+  .type:has(input:checked) { border-color: var(--c-accent); box-shadow: inset 0 0 0 1px var(--c-accent); }
+  .type input { grid-row: span 2; margin-top: .5em; accent-color: var(--c-accent); }
+  .type__l { font-weight: 600; }
+  .type__d { font-size: var(--fs-xs); color: var(--c-ink-2); }
+  .fields, .biz { display: grid; gap: var(--sp-5); }
+  .biz[hidden], .fields[hidden] { display: none; }
+  .biz { padding: var(--sp-5); background: var(--c-paper-2); }
+  input:not([type="radio"], [type="checkbox"]), textarea { width: 100%; padding: 12px 14px; border: 1px solid var(--c-line); border-radius: var(--radius); background: var(--c-card); font: inherit; color: inherit; }
+  input:focus, textarea:focus { outline: 2px solid var(--c-accent); outline-offset: 0; border-color: transparent; }
+  .chips { display: flex; flex-wrap: wrap; gap: var(--sp-2) var(--sp-4); }
+  .chips label { display: inline-flex; gap: .4em; align-items: center; }
+  .chips input, .agree input { accent-color: var(--c-accent); }
+  .agree { display: flex; gap: .6em; align-items: center; justify-content: center; }
+  .note-recruit { padding: var(--sp-4) var(--sp-5); background: var(--c-check-bg); font-size: var(--fs-sm); }
+  .confirm__list { display: grid; grid-template-columns: 10em 1fr; border-top: 1px solid var(--c-ink); margin-top: var(--sp-4); }
+  .confirm__list :global(dt), .confirm__list :global(dd) { padding: var(--sp-3) 0; border-bottom: 1px solid var(--c-line); white-space: pre-wrap; }
+  .confirm__list :global(dt) { color: var(--c-ink-2); font-size: var(--fs-sm); }
+  .err { color: var(--c-accent); font-weight: 500; }
+  .actions { justify-content: center; }
+</style>

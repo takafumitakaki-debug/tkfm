@@ -1,0 +1,88 @@
+---
+import Chapter from '../layouts/Chapter.astro';
+import Photo from '../components/Photo.astro';
+import Text from '../components/Text.astro';
+import SectionHead from '../components/SectionHead.astro';
+import { single } from '../lib/data';
+import { ph } from '../lib/text';
+const p = await single('philosophy');
+---
+<Chapter slug="philosophy" nav={[
+  { label: '理念との関係', href: '#relation' },
+  { label: 'フィロソフィ', href: '#items' },
+  { label: 'フィロソフィが表れる日常', href: '#scenes' },
+]}>
+  <section id="relation" class="section">
+    <div class="container">
+      <ol class="rel" data-reveal>
+        <li><span class="label">Why</span><strong>経営理念</strong><span class="small">なぜ</span></li>
+        <li class="is-cur"><span class="label">How</span><strong>フィロソフィ</strong><span class="small">どう考えて</span></li>
+        <li><span class="label">What</span><strong>日々の仕事</strong><span class="small">何を</span></li>
+      </ol>
+      <div class="container--text" style="margin: var(--sp-7) 0 0; padding: 0">
+        <Text as="p" class="lead" value={p.preface} />
+        <p style="margin-top: var(--sp-5)"><a class="textlink" href="/about/#statement">経営理念を読む</a></p>
+      </div>
+    </div>
+  </section>
+
+  <section id="items" class="section section--alt">
+    <div class="container">
+      <SectionHead en="Philosophy" title="イバノのフィロソフィ" />
+      <ol class="items">
+        {p.items.map((it, i) => (
+          <li class="it" id={`p-${i + 1}`} data-reveal>
+            <div class="it__head">
+              <span class="it__n">02-{i + 1}</span>
+              {it.frame && <span class="tag">整理枠：{it.frame}</span>}
+            </div>
+            <div class="it__main">
+              <h3 class="h-xl" set:html={ph(it.title)} />
+              <Text as="p" value={it.body} />
+              <div class="it__practice">
+                <span class="label">In Practice ／ 現場では</span>
+                <Text as="p" value={it.inPractice} />
+              </div>
+              {it.related.length > 0 && (
+                <ul class="it__rel">{it.related.map((r) => <li><a class="textlink" href={r.href}>{r.label}</a></li>)}</ul>
+              )}
+            </div>
+            <Photo photo={it.photo} ratio="portrait" class="it__photo" />
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <section id="scenes" class="section">
+    <div class="container">
+      <SectionHead en="Scenes" title="フィロソフィが表れる日常" lead="抽象的な言葉で終わらせないために、実際の仕事の場面で紹介します。" />
+      <div class="grid grid--3">
+        {p.scenes.map((s) => (
+          <article data-reveal>
+            <Photo photo={s.photo} ratio="land" />
+            <h3 class="h-lg" style="margin: var(--sp-4) 0 var(--sp-2)">{s.title}</h3>
+            <Text as="p" class="small" value={s.body} />
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+</Chapter>
+<style>
+  .rel { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--sp-2); }
+  @media (min-width: 768px) { .rel { grid-template-columns: repeat(3, 1fr); } }
+  .rel li { position: relative; display: flex; flex-direction: column; gap: 4px; padding: var(--sp-5); background: var(--c-card); border: 1px solid var(--c-line); }
+  .rel li.is-cur { border-color: var(--c-accent); box-shadow: inset 0 3px 0 var(--c-accent); }
+  .rel strong { font-family: var(--ff-serif); font-size: var(--fs-lg); }
+  @media (min-width: 768px) { .rel li:not(:last-child)::after { content: "→"; position: absolute; right: -14px; top: 50%; translate: 0 -50%; z-index: 1; color: var(--c-accent); background: var(--c-paper); padding: 2px; } }
+  .items { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--sp-9); }
+  .it { display: grid; gap: var(--sp-5); }
+  @media (min-width: 960px) { .it { grid-template-columns: 8em 1fr 320px; gap: var(--sp-7); } }
+  .it__head { display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-3); }
+  .it__n { font-family: var(--ff-serif); font-size: var(--fs-2xl); color: var(--c-accent); line-height: 1; }
+  .it__main { display: grid; gap: var(--sp-4); align-content: start; }
+  .it__practice { padding: var(--sp-5); background: var(--c-card); border-left: 2px solid var(--c-accent); }
+  .it__practice .label { display: block; margin-bottom: var(--sp-2); }
+  .it__rel { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: var(--sp-4); }
+</style>

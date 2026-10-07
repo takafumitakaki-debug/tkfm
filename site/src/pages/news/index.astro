@@ -1,0 +1,6 @@
+---
+import NewsIndex from '../../components/NewsIndex.astro';
+import { news } from '../../lib/data';
+const all = await news();
+---
+<NewsIndex items={all} page={1} />

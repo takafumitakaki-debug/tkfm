@@ -1,0 +1,11 @@
+---
+import NewsIndex from '../../../components/NewsIndex.astro';
+import { news, NEWS_PER_PAGE as PER_PAGE } from '../../../lib/data';
+export async function getStaticPaths() {
+  const all = await news();
+  const pages = Math.ceil(all.length / PER_PAGE);
+  return Array.from({ length: Math.max(0, pages - 1) }, (_, i) => ({ params: { page: String(i + 2) }, props: { all } }));
+}
+const { all } = Astro.props;
+---
+<NewsIndex items={all} page={Number(Astro.params.page)} />

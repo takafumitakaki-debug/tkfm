@@ -1,0 +1,46 @@
+---
+// 写真枠。src があれば画像、なければ撮影指示入りのプレースホルダーを出す。
+// no は docs/05_photo_list.md の撮影リスト番号。
+interface Props {
+  photo?: { src?: string | null; alt?: string | null; note?: string | null; no?: string | null } | null;
+  ratio?: 'pano' | 'wide' | 'land' | 'square' | 'portrait';
+  caption?: string;
+  eager?: boolean;
+  class?: string;
+}
+const { photo = {}, ratio = 'land', caption, eager = false, class: cls } = Astro.props;
+const p = photo ?? {};
+---
+<figure class:list={['photo', `photo--${ratio}`, cls]}>
+  {p.src ? (
+    <img src={p.src} alt={p.alt ?? ''} loading={eager ? 'eager' : 'lazy'} decoding="async" />
+  ) : (
+    <div class="photo__ph" role="img" aria-label={p.alt || '写真（撮影予定）'}>
+      <span class="photo__no">PHOTO{p.no ? ` No.${p.no}` : ''}</span>
+      {p.note && <span class="photo__note">{p.note}</span>}
+    </div>
+  )}
+  {caption && <figcaption>{caption}</figcaption>}
+</figure>
+
+<style>
+  .photo { margin: 0; }
+  .photo img, .photo__ph { width: 100%; aspect-ratio: var(--ar); object-fit: cover; border-radius: var(--radius); }
+  .photo--pano { --ar: 21 / 9; }
+  .photo--wide { --ar: 16 / 9; }
+  .photo--land { --ar: 3 / 2; }
+  .photo--square { --ar: 1 / 1; }
+  .photo--portrait { --ar: 4 / 5; }
+  @media (max-width: 767px) { .photo--pano { --ar: 3 / 2; } }
+  .photo__ph {
+    display: flex; flex-direction: column; justify-content: flex-end; gap: 4px; padding: var(--sp-4);
+    background:
+      linear-gradient(to top right, transparent calc(50% - .5px), rgba(0,0,0,.08) 50%, transparent calc(50% + .5px)),
+      linear-gradient(to top left, transparent calc(50% - .5px), rgba(0,0,0,.08) 50%, transparent calc(50% + .5px)),
+      #d9d2c7;
+    color: #4a443d;
+  }
+  .photo__no { font-size: var(--fs-xs); letter-spacing: .15em; font-weight: 600; }
+  .photo__note { font-size: var(--fs-xs); line-height: 1.6; max-width: 36em; }
+  figcaption { margin-top: var(--sp-2); font-size: var(--fs-xs); color: var(--c-ink-3); }
+</style>

@@ -1,0 +1,28 @@
+lead: "【地域との関わりについての原稿を配置】"
+axes:
+  - key: kitchen
+    title: 沖縄の食の現場とともに
+    body: "【取引先との関係の実例を配置】"
+    examples:
+      - 長年の取引先の話【取材】
+      - 台風・繁忙期（旧盆・年末等）の供給対応【取材】
+      - 新規開業店の立ち上げ支援【取材】
+    photo: { no: "15", note: 取引先の店舗・厨房 }
+    cta: { label: お取引のご相談, href: "/contact/?type=business" }
+  - key: ingredients
+    title: 沖縄の食材とともに
+    body: "【県産黒毛和牛・琉球あぐー等、県内生産者との関係の実例を取材して配置】"
+    examples: []
+    photo: { no: "19", note: 県内生産者（牧場・農場）を訪ねる社員 }
+  - key: community
+    title: 浦添・地域とともに
+    body: "【地域行事への協賛・参加の実例を配置】"
+    examples:
+      - URASOE FRONTIER COMPANY 認定（要確認）
+      - 学校・職場体験など【要確認】
+    photo: { no: "16", note: 地域行事への協賛・参加の様子 }
+    cta: { label: 地域に関するニュース, href: "/news/category/area/" }
+future: "【今後の取り組み・計画の原稿を配置】"
+futurePhoto: { no: "07", note: 代表または若手社員 }
+closing: 沖縄の食を支える。
+closingPhoto: { no: "24", note: 夕方、配送から戻るトラックと迎える社員 }

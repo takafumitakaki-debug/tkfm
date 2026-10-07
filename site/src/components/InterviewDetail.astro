@@ -1,0 +1,55 @@
+---
+// 社員インタビュー詳細。PEOPLE と RECRUIT で同じデータ・同じ部品を使い、戻り先だけ変える。
+import Photo from './Photo.astro';
+import InterviewCard from './InterviewCard.astro';
+import { render } from 'astro:content';
+import { interviews } from '../lib/data';
+import { ph } from '../lib/text';
+interface Props { entry: any; base: string; backLabel: string; backHref: string; }
+const { entry, base, backLabel, backHref } = Astro.props;
+const d = entry.data;
+const { Content } = await render(entry);
+const others = (await interviews()).filter((i) => i.id !== entry.id).slice(0, 3);
+---
+<article>
+  <header class="iv">
+    <div class="container iv__in">
+      <Photo photo={d.portrait} ratio="portrait" eager />
+      <div class="iv__text">
+        <span class="label">Interview</span>
+        <h1 class="iv__q" set:html={`「${ph(d.quote)}」`} />
+        <p class="iv__meta"><span set:html={ph(d.dept)} /> ／ <span set:html={ph(d.role)} /></p>
+        <p class="iv__name serif" set:html={`${ph(d.name)}<small>（${ph(d.joined)}入社）</small>`} />
+        {d.philosophyTags.length > 0 && <p>{d.philosophyTags.map((t: string) => <span class="tag tag--accent">フィロソフィ {t} と関連</span>)}</p>}
+      </div>
+    </div>
+  </header>
+  <section class="section">
+    <div class="container iv__body">
+      <div class="prose"><Content /></div>
+      <div class="iv__photos">{d.photos.map((p: any) => <Photo photo={p} ratio="land" />)}</div>
+    </div>
+  </section>
+</article>
+{others.length > 0 && (
+  <section class="section section--alt">
+    <div class="container">
+      <h2 class="h-lg" style="margin-bottom: var(--sp-6)">ほかのインタビュー</h2>
+      <div class="grid grid--3">{others.map((o) => <InterviewCard entry={o} base={base} />)}</div>
+      <p style="margin-top: var(--sp-7)"><a class="textlink" href={backHref}>{backLabel}</a></p>
+    </div>
+  </section>
+)}
+<style>
+  .iv { padding-block: var(--sp-8); background: var(--c-paper-2); }
+  .iv__in { display: grid; gap: var(--sp-7); align-items: end; }
+  @media (min-width: 960px) { .iv__in { grid-template-columns: 5fr 7fr; } }
+  .iv__text { display: grid; gap: var(--sp-4); justify-items: start; }
+  .iv__q { font-size: var(--fs-2xl); font-weight: 500; line-height: 1.6; }
+  .iv__meta { color: var(--c-ink-2); font-size: var(--fs-sm); margin: 0; }
+  .iv__name { font-size: var(--fs-lg); margin: 0; }
+  .iv__name small { font-size: var(--fs-sm); color: var(--c-ink-2); }
+  .iv__body { display: grid; gap: var(--sp-7); }
+  @media (min-width: 960px) { .iv__body { grid-template-columns: 7fr 4fr; } }
+  .iv__photos { display: grid; gap: var(--sp-4); align-content: start; }
+</style>

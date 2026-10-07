@@ -1,0 +1,28 @@
+---
+// 事業の下層ページ。CMS で「独立ページにする（split）」をオンにした事業だけ生成される。
+import Base from '../../layouts/Base.astro';
+import PageHero from '../../components/PageHero.astro';
+import BusinessBlock from '../../components/BusinessBlock.astro';
+import { businesses } from '../../lib/data';
+import { render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const list = await businesses();
+  return list
+    .map((entry, index) => ({ entry, index }))
+    .filter(({ entry }) => entry.data.split && entry.id !== 'shop')
+    .map(({ entry, index }) => ({ params: { slug: entry.id }, props: { entry, index } }));
+}
+const { entry, index } = Astro.props;
+const { Content } = await render(entry);
+---
+<Base title={entry.data.name}>
+  <PageHero en="Business" title={entry.data.name} lead="03 事業" />
+  <section class="section">
+    <div class="container">
+      <BusinessBlock entry={entry} index={index} />
+      <div class="prose" style="margin-top: var(--sp-8)"><Content /></div>
+      <p style="margin-top: var(--sp-7)"><a class="textlink" href="/business/">03 事業に戻る</a></p>
+    </div>
+  </section>
+</Base>

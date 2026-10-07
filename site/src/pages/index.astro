@@ -1,0 +1,276 @@
+---
+// TOP：01〜05 の章を、それぞれの章ページの「予告編」として並べる（docs/02_top_wireframe.md）
+import Base from '../layouts/Base.astro';
+import ChapterLabel from '../components/ChapterLabel.astro';
+import Photo from '../components/Photo.astro';
+import Text from '../components/Text.astro';
+import Fact from '../components/Fact.astro';
+import Flow from '../components/Flow.astro';
+import Numbers from '../components/Numbers.astro';
+import InterviewCard from '../components/InterviewCard.astro';
+import NewsList from '../components/NewsList.astro';
+import { single, chapters, businesses, businessHref, interviews, news, jobs } from '../lib/data';
+import { ph, formatDate } from '../lib/text';
+
+const top = await single('top');
+const about = await single('about');
+const philo = await single('philosophy');
+const biz = await single('businessPage');
+const area = await single('area');
+const co = await single('company');
+const recruit = await single('recruit');
+const ch = Object.fromEntries((await chapters()).map((c) => [c.slug, c]));
+const bizList = await businesses();
+const people = (await interviews()).filter((i) => i.data.featured).slice(0, 4);
+const latest = (await news()).slice(0, 3);
+const openJobs = await jobs();
+---
+<Base>
+  <!-- S00 ファーストビュー -->
+  <section class="fv">
+    <div class="fv__photos" aria-hidden="true">
+      {top.fvPhotos.map((p, i) => <div class="fv__slide" style={`--i:${i}; --n:${top.fvPhotos.length}`}><Photo photo={p} ratio="wide" eager={i === 0} /></div>)}
+    </div>
+    <div class="container fv__copy">
+      <h1 class="fv__title" set:html={ph(top.fvCopy)} />
+      <p class="fv__sub serif">{top.fvSub}</p>
+      <p class="fv__lead small">{top.fvLead}</p>
+      <a href="#ch-01" class="fv__scroll">01 理念から読む <span aria-hidden="true">↓</span></a>
+    </div>
+    <p class="fv__since">SINCE 1963</p>
+  </section>
+  {latest[0] && (
+    <a class="fv-news container" href={`/news/${latest[0].id}/`}>
+      <span class="label">News</span><time>{formatDate(latest[0].data.date)}</time><span set:html={ph(latest[0].data.title)} />
+    </a>
+  )}
+
+  <!-- S01 理念 -->
+  <section id="ch-01" class="section tch">
+    <div class="container">
+      <ChapterLabel num={ch.about.num} title={ch.about.title} en={ch.about.en} />
+      <h2 class="tch__q" set:html={ph(ch.about.question)} />
+      <div class="tch__statement" data-reveal>
+        <Text as="p" class="statement" value={about.statement} />
+      </div>
+      <div class="container--text tch__body stack" data-reveal>
+        <Text as="p" value={ch.about.teaser} />
+        <blockquote class="tch__quote serif">
+          <Text as="p" value={`「${about.message.excerpt}」`} />
+          <footer class="small">― <Fact fact={co.representative} /></footer>
+        </blockquote>
+      </div>
+      <div class="tch__photo"><Photo photo={ch.about.topPhotos[0] ?? ch.about.hero} ratio="pano" /></div>
+      <a class="btn" href="/about/">{ch.about.topCta}</a>
+    </div>
+  </section>
+
+  <!-- S02 フィロソフィ -->
+  <section class="section section--alt tch">
+    <div class="container">
+      <ChapterLabel num={ch.philosophy.num} title={ch.philosophy.title} en={ch.philosophy.en} />
+      <h2 class="tch__q" set:html={ph(ch.philosophy.question)} />
+      <Text as="p" class="tch__lead" value={ch.philosophy.teaser} />
+      <ol class="pl">
+        {philo.items.map((it, i) => (
+          <li class="pl__item" data-reveal>
+            <Photo photo={it.photo} ratio="land" />
+            <span class="pl__n">02-{i + 1}</span>
+            <h3 class="pl__t" set:html={ph(it.title)} />
+            <p class="pl__p small"><span class="pl__k">現場では</span><span set:html={ph(it.inPractice)} /></p>
+          </li>
+        ))}
+      </ol>
+      <a class="btn" href="/philosophy/">{ch.philosophy.topCta}</a>
+    </div>
+  </section>
+
+  <!-- S03 事業 -->
+  <section class="section tch">
+    <div class="container">
+      <ChapterLabel num={ch.business.num} title={ch.business.title} en={ch.business.en} />
+      <h2 class="tch__q" set:html={ph(ch.business.question)} />
+      <Text as="p" class="tch__lead" value={ch.business.teaser} />
+      <Flow steps={biz.flow.map((f) => ({ step: f.step }))} />
+      <div class="grid grid--4 bz">
+        {bizList.map((b) => (
+          <a class="bz__card" href={businessHref(b)} data-reveal>
+            <Photo photo={b.data.photo} ratio="land" />
+            <h3 class="bz__h" set:html={ph(b.data.heading)} />
+            <p class="small">{b.data.name}</p>
+            <span class="textlink">詳しく見る</span>
+          </a>
+        ))}
+      </div>
+      <Numbers items={biz.numbers} />
+      <div class="btn-row tch__cta">
+        <a class="btn" href="/business/">{ch.business.topCta}</a>
+        <a class="btn btn--primary" href="/contact/?type=business">お取引のご相談</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- S04 人 -->
+  <section class="section section--alt tch">
+    <div class="container">
+      <ChapterLabel num={ch.people.num} title={ch.people.title} en={ch.people.en} />
+      <h2 class="tch__q" set:html={ph(ch.people.question)} />
+      <Text as="p" class="tch__lead" value={ch.people.teaser} />
+      <div class="hscroll">
+        {people.map((p) => <InterviewCard entry={p} />)}
+      </div>
+      {top.peopleCulture && <Text as="p" class="tch__culture serif" value={top.peopleCulture} />}
+      <div class="btn-row tch__cta">
+        <a class="btn" href="/people/">{ch.people.topCta}</a>
+        <a class="btn" href="/recruit/">採用情報へ</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- S05 地域 -->
+  <section class="section tch">
+    <div class="container">
+      <ChapterLabel num={ch.area.num} title={ch.area.title} en={ch.area.en} />
+      <h2 class="tch__q" set:html={ph(ch.area.question)} />
+      <Text as="p" class="tch__lead" value={ch.area.teaser} />
+      <div class="grid grid--3">
+        {area.axes.map((a, i) => (
+          <article data-reveal>
+            <Photo photo={a.photo} ratio="land" />
+            <h3 class="ax__t"><span class="ax__n">0{i + 1}</span>{a.title}</h3>
+            <Text as="p" class="small" value={a.body} />
+          </article>
+        ))}
+      </div>
+      <p class="closing serif" data-reveal>{area.closing}</p>
+      <a class="btn" href="/area/">{ch.area.topCta}</a>
+    </div>
+  </section>
+
+  <!-- S06 ニュース -->
+  <section class="section section--alt">
+    <div class="container split">
+      <div>
+        <span class="label">News</span>
+        <h2 class="h-xl">お知らせ</h2>
+        <a class="textlink split__more" href="/news/">ニュース一覧へ</a>
+      </div>
+      <NewsList items={latest} />
+    </div>
+  </section>
+
+  <!-- S07 採用 -->
+  <section class="section section--deep rc">
+    <div class="container rc__in">
+      <div class="rc__text">
+        <span class="label">Recruit</span>
+        <Text as="h2" class="h-xl" value={recruit.message} />
+        <Text as="p" value={recruit.lead} />
+        <ul class="rc__jobs">{[...new Set(openJobs.filter((j) => j.data.open).map((j) => j.data.title))].map((t) => <li class="tag" set:html={ph(t)} />)}</ul>
+        <div class="btn-row">
+          <a class="btn btn--primary" href="/recruit/">採用サイトを見る</a>
+          <a class="btn btn--ondeep" href="/recruit/jobs/new-graduate/">新卒採用</a>
+          <a class="btn btn--ondeep" href="/recruit/jobs/mid-career/">中途採用</a>
+        </div>
+      </div>
+      <Photo photo={top.recruitPhoto} ratio="land" />
+    </div>
+  </section>
+
+  <!-- S08 会社情報 -->
+  <section class="section">
+    <div class="container cs">
+      <Photo photo={top.companyPhoto} ratio="land" />
+      <div>
+        <span class="label">Company</span>
+        <h2 class="h-xl">会社情報</h2>
+        <table class="table cs__t">
+          <tr><th>会社名</th><td>{co.name}</td></tr>
+          <tr><th>創業</th><td><Fact fact={co.founded} /></td></tr>
+          <tr><th>本社所在地</th><td><Fact fact={co.address} /></td></tr>
+          <tr><th>事業内容</th><td><Fact fact={co.business} /></td></tr>
+        </table>
+        <div class="btn-row">
+          <a class="textlink" href="/company/">会社概要</a>
+          <a class="textlink" href="/company/#history">沿革</a>
+          <a class="textlink" href="/company/#access">アクセス</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* FV */
+  .fv { position: relative; display: grid; min-height: min(92svh, 900px); overflow: hidden; background: var(--c-deep); color: #fff; }
+  .fv__photos, .fv__slide { position: absolute; inset: 0; }
+  .fv__slide :global(.photo), .fv__slide :global(img), .fv__slide :global(.photo__ph) { height: 100%; aspect-ratio: auto; border-radius: 0; }
+  .fv__slide :global(.photo__ph) { justify-content: flex-start; align-items: flex-end; padding-top: calc(var(--sp-6)); text-align: right; }
+  .fv__slide { opacity: 0; animation: fade calc(var(--n) * 6s) infinite; animation-delay: calc(var(--i) * 6s); }
+  .fv__slide:first-child { opacity: 1; }
+  @keyframes fade { 0% { opacity: 0; } 4% { opacity: 1; } 25% { opacity: 1; } 29% { opacity: 0; } 100% { opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { .fv__slide { animation: none; } .fv__slide:not(:first-child) { display: none; } }
+  .fv::after { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgba(20,18,16,.75), rgba(20,18,16,.1) 60%); pointer-events: none; }
+  .fv__copy { position: relative; z-index: 1; align-self: end; padding-bottom: var(--sp-9); }
+  .fv__title { font-size: var(--fs-2xl); font-weight: 500; line-height: 1.6; letter-spacing: .1em; max-width: 18em; }
+  .fv__title :global(.ph) { font-size: var(--fs-lg); }
+  .fv__sub { margin-top: var(--sp-5); font-size: var(--fs-lg); letter-spacing: .2em; }
+  .fv__lead { color: rgba(255,255,255,.75); margin-top: var(--sp-2); }
+  .fv__scroll { display: inline-block; margin-top: var(--sp-6); font-size: var(--fs-sm); letter-spacing: .15em; text-decoration: none; border-bottom: 1px solid; }
+  .fv__scroll:hover { color: #fff; }
+  .fv__since { position: absolute; right: var(--gutter); bottom: var(--sp-5); z-index: 1; margin: 0; font-family: var(--ff-serif); font-size: var(--fs-xs); letter-spacing: .3em; color: rgba(255,255,255,.7); }
+  .fv-news { display: flex; gap: var(--sp-4); align-items: baseline; padding-block: var(--sp-4); border-bottom: 1px solid var(--c-line); text-decoration: none; font-size: var(--fs-sm); }
+  .fv-news time { color: var(--c-ink-2); }
+
+  /* 章予告の共通型：問い → 要点 → 証拠 → 章ページへ */
+  .tch__q { font-size: var(--fs-xl); margin: var(--sp-4) 0 var(--sp-6); max-width: 22em; }
+  .tch__lead { max-width: var(--w-text); margin-bottom: var(--sp-7); }
+  .tch__statement { padding-block: var(--sp-8); text-align: center; }
+  .tch__body { margin-inline: 0; margin-bottom: var(--sp-7); }
+  .tch__quote { margin: var(--sp-6) 0 0; padding-left: var(--sp-5); border-left: 2px solid var(--c-accent); font-size: var(--fs-md); }
+  .tch__quote footer { margin-top: var(--sp-2); font-family: var(--ff-sans); }
+  .tch__photo { margin-bottom: var(--sp-6); }
+  .tch__cta { margin-top: var(--sp-7); }
+  .tch__culture { margin-top: var(--sp-6); font-size: var(--fs-md); }
+  .tch :global(.flow) { margin-bottom: var(--sp-7); }
+  .tch > .container > .btn { margin-top: var(--sp-7); }
+
+  .pl { list-style: none; padding: 0; margin: 0; display: grid; gap: var(--sp-6); }
+  @media (min-width: 768px) { .pl { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1024px) { .pl { grid-template-columns: repeat(3, 1fr); } }
+  .pl__n { display: block; margin-top: var(--sp-4); font-family: var(--ff-serif); font-size: var(--fs-xl); color: var(--c-accent); line-height: 1; }
+  .pl__t { margin-top: var(--sp-3); font-size: var(--fs-md); }
+  .pl__p { margin-top: var(--sp-2); }
+  .pl__k { display: inline-block; margin-right: .6em; font-weight: 500; color: var(--c-ink); }
+
+  .bz { margin-block: var(--sp-7); }
+  .bz__card { display: flex; flex-direction: column; gap: var(--sp-2); text-decoration: none; }
+  .bz__card:hover { color: inherit; }
+  .bz__h { margin-top: var(--sp-3); font-size: var(--fs-md); }
+  .bz__card .textlink { align-self: flex-start; margin-top: auto; }
+
+  .hscroll { display: grid; grid-auto-flow: column; grid-auto-columns: min(72vw, 280px); gap: var(--sp-5); overflow-x: auto; padding-bottom: var(--sp-4); scroll-snap-type: x mandatory; }
+  .hscroll > :global(*) { scroll-snap-align: start; }
+  @media (min-width: 1024px) { .hscroll { grid-auto-flow: row; grid-template-columns: repeat(4, 1fr); overflow: visible; } }
+
+  .ax__t { margin-top: var(--sp-4); font-size: var(--fs-md); }
+  .ax__n { margin-right: .6em; font-family: var(--ff-serif); color: var(--c-accent); }
+  .closing { margin-top: var(--sp-8); text-align: center; font-size: var(--fs-2xl); letter-spacing: .2em; }
+
+  .split { display: grid; gap: var(--sp-6); }
+  @media (min-width: 960px) { .split { grid-template-columns: 1fr 3fr; } }
+  .split .h-xl { margin-top: var(--sp-2); }
+  .split__more { margin-top: var(--sp-5); }
+
+  .rc__in { display: grid; gap: var(--sp-7); align-items: center; }
+  @media (min-width: 960px) { .rc__in { grid-template-columns: 1fr 1fr; } }
+  .rc__text { display: grid; gap: var(--sp-4); justify-items: start; }
+  .rc .label { color: var(--c-on-deep-2); }
+  .rc__jobs { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+  .rc__jobs .tag { background: transparent; color: var(--c-on-deep); border-color: rgba(255,255,255,.3); }
+
+  .cs { display: grid; gap: var(--sp-7); align-items: center; }
+  @media (min-width: 960px) { .cs { grid-template-columns: 1fr 1fr; } }
+  .cs .h-xl { margin: var(--sp-2) 0 var(--sp-5); }
+  .cs__t { margin-bottom: var(--sp-5); }
+</style>

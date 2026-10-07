@@ -1,0 +1,50 @@
+---
+import Chapter from '../../layouts/Chapter.astro';
+import Photo from '../../components/Photo.astro';
+import Text from '../../components/Text.astro';
+import Flow from '../../components/Flow.astro';
+import Numbers from '../../components/Numbers.astro';
+import SectionHead from '../../components/SectionHead.astro';
+import BusinessBlock from '../../components/BusinessBlock.astro';
+import ShopCard from '../../components/ShopCard.astro';
+import { single, businesses } from '../../lib/data';
+const b = await single('businessPage');
+const co = await single('company');
+const list = await businesses();
+const shops = co.locations.filter((l) => l.kind === 'shop');
+---
+<Chapter slug="business" nav={[
+  { label: '事業の全体像', href: '#overview' },
+  ...list.map((x) => ({ label: x.data.name.replace(/（.*）/, ''), href: `#${x.id}` })),
+  { label: '品質・物流', href: '#quality' },
+]}>
+  <section id="overview" class="section">
+    <div class="container">
+      <SectionHead en="Overview" title="事業の全体像" />
+      <Text as="p" class="lead container--text" value={b.lead} />
+      <div style="margin-block: var(--sp-7)"><Flow steps={b.flow.map((f) => ({ ...f, href: f.dept ? '/people/#departments' : undefined }))} /></div>
+      <Numbers items={b.numbers} />
+    </div>
+  </section>
+
+  {list.map((x, i) => (
+    <section class:list={['section', { 'section--alt': i % 2 === 0 }]}>
+      <div class="container">
+        <BusinessBlock entry={x} index={i}>
+          {x.id === 'shop' && <div class="grid grid--2">{shops.map((s) => <ShopCard shop={s} />)}</div>}
+        </BusinessBlock>
+        {x.data.split && <p style="margin-top: var(--sp-5)"><a class="textlink" href={`/business/${x.id}/`}>{x.data.name}の詳細</a></p>}
+      </div>
+    </section>
+  ))}
+
+  <section id="quality" class="section">
+    <div class="container grid grid--2" style="align-items: center">
+      <div>
+        <SectionHead en="Quality & Logistics" title="品質・物流への取り組み" />
+        <Text as="p" value={b.quality} />
+      </div>
+      <Photo photo={b.qualityPhoto} ratio="land" />
+    </div>
+  </section>
+</Chapter>

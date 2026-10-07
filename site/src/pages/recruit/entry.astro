@@ -1,0 +1,51 @@
+---
+import Recruit from '../../layouts/Recruit.astro';
+import PageHero from '../../components/PageHero.astro';
+import Text from '../../components/Text.astro';
+import { single, jobs, jobKinds } from '../../lib/data';
+const r = await single('recruit');
+const open = (await jobs()).filter((j) => j.data.open);
+---
+<Recruit title="エントリー">
+  <PageHero en="Entry" title="エントリー" />
+  <section class="section">
+    <div class="container container--text">
+      <form name="entry" method="POST" action="/contact/thanks/" data-netlify="true" netlify-honeypot="bot-field" class="ef">
+        <input type="hidden" name="form-name" value="entry" />
+        <p hidden><label>空のままにしてください <input name="bot-field" /></label></p>
+        <label><span>応募職種 <span class="req">必須</span></span>
+          <select name="job" required>
+            <option value="">選択してください</option>
+            {open.map((j) => <option value={j.data.title}>{jobKinds[j.data.kind]}：{j.data.title}</option>)}
+          </select>
+        </label>
+        <label><span>お名前 <span class="req">必須</span></span><input name="name" required autocomplete="name" /></label>
+        <label><span>フリガナ</span><input name="kana" /></label>
+        <label><span>メールアドレス <span class="req">必須</span></span><input type="email" name="email" required autocomplete="email" /></label>
+        <label><span>電話番号 <span class="req">必須</span></span><input type="tel" name="tel" required autocomplete="tel" /></label>
+        <label><span>学歴・職歴</span><textarea name="career" rows="5"></textarea></label>
+        <label><span>自由記入</span><textarea name="message" rows="5"></textarea></label>
+        <label class="agree"><input type="checkbox" required /> <span><a href="/privacy/" target="_blank">プライバシーポリシー</a>に同意する</span></label>
+        <button class="btn btn--primary" type="submit">エントリーする</button>
+      </form>
+      <hr />
+      <h2 class="h-lg">求人媒体からの応募</h2>
+      <Text as="p" value={r.entryNote} />
+      <h2 class="h-lg" style="margin-top: var(--sp-6)">採用担当</h2>
+      <Text as="p" value={r.contact} />
+    </div>
+  </section>
+</Recruit>
+<script>
+  const job = new URLSearchParams(location.search).get('job');
+  const sel = document.querySelector<HTMLSelectElement>('select[name="job"]');
+  if (job && sel) sel.value = job;
+</script>
+<style>
+  .ef { display: grid; gap: var(--sp-5); }
+  .ef label:not(.agree) { display: grid; gap: var(--sp-2); font-size: var(--fs-sm); font-weight: 500; }
+  .req { margin-left: .4em; padding: 0 .5em; font-size: var(--fs-xs); color: #fff; background: var(--c-accent); border-radius: var(--radius); }
+  input:not([type="checkbox"]), textarea, select { width: 100%; padding: 12px 14px; border: 1px solid var(--c-line); border-radius: var(--radius); background: var(--c-card); font: inherit; font-weight: 400; color: inherit; }
+  .agree { display: flex; gap: .6em; align-items: center; justify-content: center; }
+  .ef .btn { justify-self: center; }
+</style>

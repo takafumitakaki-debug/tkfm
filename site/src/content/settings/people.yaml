@@ -1,0 +1,25 @@
+stance: "【人・社員に関する会社の考え方を配置】"
+culture: "【社内文化の具体例（誕生日カード等）を事実確認後に配置】"
+stancePhoto: { no: "23", note: 代表と社員が話している場面 }
+departments:
+  - { name: 仕入・輸入, role: "【部署の仕事内容を配置】", members: "【人数】", comment: "【社員の一言】", photo: { no: "10" } }
+  - { name: 倉庫・加工, role: "【部署の仕事内容を配置】", members: "【人数】", comment: "【社員の一言】", photo: { no: "10" } }
+  - { name: 営業, role: "【部署の仕事内容を配置】", members: "【人数】", comment: "【社員の一言】", photo: { no: "11" } }
+  - { name: 配送, role: "【部署の仕事内容を配置】", members: "【人数】", comment: "【社員の一言】", photo: { no: "01" } }
+  - { name: 店舗, role: "【部署の仕事内容を配置】", members: "【人数】", comment: "【社員の一言】", photo: { no: "03" } }
+  - { name: 管理部門, role: "【部署の仕事内容を配置】", members: "【人数】", comment: "【社員の一言】", photo: { no: "22" } }
+days:
+  - role: 営業
+    schedule:
+      - { time: "【時刻】", text: "【実際のスケジュールを取材して配置】" }
+      - { time: "【時刻】", text: "【実際のスケジュールを取材して配置】" }
+      - { time: "【時刻】", text: "【実際のスケジュールを取材して配置】" }
+  - role: 配送
+    schedule:
+      - { time: "【時刻】", text: "【実際のスケジュールを取材して配置】" }
+      - { time: "【時刻】", text: "【実際のスケジュールを取材して配置】" }
+      - { time: "【時刻】", text: "【実際のスケジュールを取材して配置】" }
+environment: "【本社・倉庫・店舗・休憩スペースなど職場の紹介と、制度の概要を配置】"
+environmentPhotos:
+  - { no: "22", note: 休憩スペース・事務所（人がいる状態で） }
+recruitCopy: "この人たちと、一緒に働きませんか。（コピー案・要協議）"

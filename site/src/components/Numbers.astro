@@ -1,0 +1,25 @@
+---
+// 数字で見るイバノ
+import { ph } from '../lib/text';
+interface Props { items: { label: string; value: string; unit?: string; confirmed?: boolean }[]; }
+const { items } = Astro.props;
+---
+<dl class="num" data-reveal>
+  {items.map((n) => (
+    <div class="num__item">
+      <dt>{n.label}{!n.confirmed && <span class="check">要確認</span>}</dt>
+      <dd><span class="num__v" set:html={ph(n.value)} />{n.unit && <span class="num__u">{n.unit}</span>}</dd>
+    </div>
+  ))}
+</dl>
+<style>
+  .num { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; background: var(--c-line); border-block: 1px solid var(--c-line); margin: 0; }
+  @media (min-width: 960px) { .num { grid-template-columns: repeat(var(--cols, 4), 1fr); } }
+  .num__item { background: var(--c-paper); padding: var(--sp-5) var(--sp-4); }
+  :global(.section--alt) .num__item { background: var(--c-paper-2); }
+  dt { font-size: var(--fs-xs); color: var(--c-ink-2); letter-spacing: .1em; }
+  dd { margin-top: var(--sp-2); }
+  .num__v { font-family: var(--ff-serif); font-size: var(--fs-2xl); line-height: 1.2; }
+  .num__v :global(.ph) { font-size: var(--fs-sm); }
+  .num__u { margin-left: .2em; font-size: var(--fs-sm); }
+</style>

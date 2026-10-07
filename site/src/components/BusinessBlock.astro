@@ -1,0 +1,54 @@
+---
+// 事業紹介：全事業共通の「4つの問い」の型（docs/03_lower_pages.md 03 事業）
+import Photo from './Photo.astro';
+import Text from './Text.astro';
+import { ph } from '../lib/text';
+interface Props { entry: { id: string; data: any }; index: number; heading?: 'h2' | 'h1'; }
+const { entry, index, heading: H = 'h2' } = Astro.props;
+const d = entry.data;
+const qs = [
+  { q: '何をしているのか', a: d.what },
+  { q: '誰に提供しているのか', a: d.who },
+  { q: 'どんな価値があるのか', a: d.value },
+  { q: '理念とどうつながっているのか', a: d.link },
+];
+---
+<article class="bb" id={entry.id}>
+  <div class="bb__head" data-reveal>
+    <span class="bb__n">03-{index + 1}</span>
+    <span class="label">{d.name}</span>
+    <H class="h-xl" set:html={ph(d.heading)} />
+  </div>
+  <Photo photo={d.photo} ratio="wide" />
+  <dl class="bb__qa">
+    {qs.map((x) => (
+      <div data-reveal>
+        <dt>{x.q}</dt>
+        <dd set:html={ph(x.a)} />
+      </div>
+    ))}
+  </dl>
+  {d.philosophyTags?.length > 0 && <p class="bb__tags">{d.philosophyTags.map((t: string) => <span class="tag tag--accent">フィロソフィ {t} と関連</span>)}</p>}
+  {d.examples && <p class="small"><strong>取扱例：</strong><span set:html={ph(d.examples)} /></p>}
+  <slot />
+  {d.voice && (
+    <blockquote class="bb__voice serif">
+      <Text as="p" value={`「${d.voice.quote}」`} />
+      <footer class="small">― <span set:html={ph(d.voice.name)} /></footer>
+    </blockquote>
+  )}
+  {d.cta && <p><a class:list={['btn', { 'btn--primary': d.cta.href.includes('contact') }]} href={d.cta.href}>{d.cta.label}</a></p>}
+</article>
+<style>
+  .bb { display: grid; gap: var(--sp-6); }
+  .bb__head { display: grid; gap: var(--sp-2); }
+  .bb__n { font-family: var(--ff-serif); font-size: var(--fs-lg); color: var(--c-accent); }
+  .bb__qa { display: grid; gap: 1px; background: var(--c-line); border-block: 1px solid var(--c-line); margin: 0; }
+  @media (min-width: 768px) { .bb__qa { grid-template-columns: 1fr 1fr; } }
+  .bb__qa > div { padding: var(--sp-5); background: var(--c-paper); }
+  :global(.section--alt) .bb__qa > div { background: var(--c-paper-2); }
+  .bb__qa dt { font-size: var(--fs-xs); letter-spacing: .1em; color: var(--c-accent); font-weight: 500; margin-bottom: var(--sp-2); }
+  .bb__tags { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+  .bb__voice { margin: 0; padding: var(--sp-5) var(--sp-6); background: var(--c-card); border-left: 2px solid var(--c-accent); font-size: var(--fs-md); }
+  .bb__voice footer { margin-top: var(--sp-2); font-family: var(--ff-sans); }
+</style>

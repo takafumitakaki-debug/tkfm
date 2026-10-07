@@ -1,0 +1,39 @@
+---
+// 全ページ共通：フッター直前のお問い合わせブロック（TOP S09）
+import { single } from '../lib/data';
+import Fact from './Fact.astro';
+const c = await single('contact');
+---
+<section class="cb" aria-labelledby="cb-title">
+  <div class="container">
+    <div class="cb__head">
+      <span class="label">Contact</span>
+      <h2 id="cb-title" class="h-xl">お問い合わせ</h2>
+      <p class="small">TEL <Fact fact={c.tel} />（受付 <Fact fact={c.hours} />）</p>
+    </div>
+    <ul class="cb__list">
+      {c.types.map((t) => (
+        <li>
+          <a href={`/contact/?type=${t.key}`}>
+            <span class="cb__label">{t.label}</span>
+            <span class="cb__desc">{t.description}</span>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+<style>
+  .cb { padding-block: var(--sp-9); border-top: 1px solid var(--c-line); }
+  .cb .container { display: grid; gap: var(--sp-6); }
+  @media (min-width: 960px) { .cb .container { grid-template-columns: 1fr 2fr; align-items: start; } }
+  .cb__head .h-xl { margin: var(--sp-2) 0 var(--sp-3); }
+  .cb__list { list-style: none; margin: 0; padding: 0; display: grid; gap: 1px; background: var(--c-line); border: 1px solid var(--c-line); }
+  @media (min-width: 600px) { .cb__list { grid-template-columns: 1fr 1fr; } }
+  .cb__list a { display: flex; flex-direction: column; gap: 4px; height: 100%; padding: var(--sp-5) var(--sp-6) var(--sp-5) var(--sp-5); background: var(--c-paper); text-decoration: none; position: relative; transition: background var(--dur) var(--ease); }
+  .cb__list a::after { content: "→"; position: absolute; right: var(--sp-5); top: 50%; translate: 0 -50%; color: var(--c-accent); transition: translate var(--dur) var(--ease); }
+  .cb__list a:hover { background: var(--c-card); color: inherit; }
+  .cb__list a:hover::after { translate: 4px -50%; }
+  .cb__label { font-family: var(--ff-serif); font-size: var(--fs-md); font-weight: 600; }
+  .cb__desc { font-size: var(--fs-xs); color: var(--c-ink-2); }
+</style>

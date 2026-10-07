@@ -1,0 +1,22 @@
+---
+import Photo from './Photo.astro';
+import { ph } from '../lib/text';
+interface Props { entry: { id: string; data: any }; base?: string; headline?: 'quote' | 'recruit'; }
+const { entry, base = '/people/interview', headline = 'quote' } = Astro.props;
+const d = entry.data;
+const head = headline === 'recruit' && d.recruitHeadline ? d.recruitHeadline : d.quote;
+---
+<article class="ic" data-reveal>
+  <a href={`${base}/${entry.id}/`}>
+    <Photo photo={d.portrait} ratio="portrait" />
+    <p class="ic__q serif" set:html={`「${ph(head)}」`} />
+    <p class="ic__meta"><span set:html={ph(d.dept)} /> ／ <span set:html={ph(d.role)} /><br /><span set:html={ph(d.name)} />（<span set:html={ph(d.joined)} />入社）</p>
+  </a>
+</article>
+<style>
+  a { display: block; text-decoration: none; }
+  a:hover { color: inherit; }
+  a:hover :global(.photo) { opacity: .9; }
+  .ic__q { margin-top: var(--sp-4); font-size: var(--fs-md); font-weight: 600; line-height: 1.7; }
+  .ic__meta { margin-top: var(--sp-3); font-size: var(--fs-xs); color: var(--c-ink-2); }
+</style>

@@ -1,0 +1,59 @@
+/* ==========================================================================
+   IVANO Design Tokens
+   ここが「デザインの正」。色・文字・余白は必ずこのトークン経由で使う。
+   一覧と使い方は /styleguide/ と docs/06_design_system.md を参照。
+   ========================================================================== */
+:root {
+  /* ---- Color : 紙とインクを基調に、アクセントは1色だけ ---- */
+  --c-paper: #f7f4ef;      /* 背景（温かみのある白） */
+  --c-paper-2: #efe9e0;    /* 交互セクション背景 */
+  --c-card: #ffffff;
+  --c-ink: #1d1a17;        /* 本文 */
+  --c-ink-2: #5b544c;      /* 補足 */
+  --c-ink-3: #70675d;      /* キャプション・英字ラベル */
+  --c-line: #dcd4c8;
+  --c-accent: #9b3320;     /* 熟成肉の赤。CTA・章番号・強調にだけ使う */
+  --c-accent-hover: #7a2716;
+  --c-on-accent: #ffffff;
+  --c-deep: #1f2622;       /* 暗いセクション（章扉・結び・フッター） */
+  --c-on-deep: #ede8df;
+  --c-on-deep-2: #b4ada2;
+
+  /* 制作中の状態表示（公開前にゼロにする） */
+  --c-ph: #1f5fbf;         /* 【仮置き原稿】 */
+  --c-ph-bg: #eaf1fc;
+  --c-check: #a84f00;      /* 要確認 */
+  --c-check-bg: #fff0dc;
+
+  /* ---- Typography ---- */
+  --ff-sans: "Noto Sans JP", "Hiragino Kaku Gothic ProN", "Yu Gothic", sans-serif;
+  --ff-serif: "Noto Serif JP", "Hiragino Mincho ProN", "Yu Mincho", serif;
+  --fs-xs: 0.75rem;                              /* 12 */
+  --fs-sm: 0.875rem;                             /* 14 */
+  --fs-base: 1rem;                               /* 16 */
+  --fs-md: 1.125rem;                             /* 18 */
+  --fs-lg: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);    /* 20-24 */
+  --fs-xl: clamp(1.5rem, 1.2rem + 1.3vw, 2.25rem);    /* 24-36 */
+  --fs-2xl: clamp(1.875rem, 1.3rem + 2.6vw, 3.25rem); /* 30-52 */
+  --fs-num: clamp(4rem, 2.5rem + 7vw, 9rem);          /* 章番号 */
+  --lh-body: 1.95;
+  --lh-head: 1.5;
+  --ls-body: 0.04em;
+  --ls-label: 0.2em;
+
+  /* ---- Space（4の倍数） ---- */
+  --sp-1: 4px; --sp-2: 8px; --sp-3: 12px; --sp-4: 16px; --sp-5: 24px;
+  --sp-6: 32px; --sp-7: 48px; --sp-8: 64px; --sp-9: 96px; --sp-10: 128px;
+  --section: clamp(64px, 5vw + 40px, 128px);  /* セクション上下余白 */
+  --gutter: clamp(16px, 4vw, 48px);           /* 画面端の余白 */
+
+  /* ---- Layout ---- */
+  --w-max: 1200px;    /* コンテンツ最大幅 */
+  --w-text: 40em;     /* 本文の最大行長 */
+  --header-h: 72px;
+
+  /* ---- Shape / Motion ---- */
+  --radius: 2px;
+  --ease: cubic-bezier(.2, .7, .2, 1);
+  --dur: .3s;
+}

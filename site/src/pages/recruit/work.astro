@@ -1,0 +1,43 @@
+---
+import Recruit from '../../layouts/Recruit.astro';
+import PageHero from '../../components/PageHero.astro';
+import Photo from '../../components/Photo.astro';
+import Flow from '../../components/Flow.astro';
+import { single } from '../../lib/data';
+import { ph } from '../../lib/text';
+const r = await single('recruit');
+const b = await single('businessPage');
+const keys = [['duties', '仕事内容'], ['day', '1日の流れ'], ['rewarding', 'やりがい'], ['hard', '大変なこと'], ['skills', '必要なスキル・資格'], ['career', 'キャリアの道筋']] as const;
+---
+<Recruit title="仕事を知る">
+  <PageHero en="Work" title="仕事を知る" />
+  <section class="section">
+    <div class="container">
+      <Flow title="食材が届くまでと、それぞれの職種" steps={b.flow.map((f) => ({ step: f.step }))} />
+    </div>
+  </section>
+  {r.roles.map((role, i) => (
+    <section id={`role-${i + 1}`} class:list={['section', { 'section--alt': i % 2 === 0 }]}>
+      <div class="container role">
+        <div class="role__head">
+          <span class="role__n">{String(i + 1).padStart(2, '0')}</span>
+          <h2 class="h-xl">{role.name}</h2>
+          <p set:html={ph(role.summary)} />
+          <Photo photo={role.photo} ratio="land" />
+        </div>
+        <dl class="role__dl">
+          {keys.map(([k, label]) => <div><dt>{label}</dt><dd set:html={ph(role[k])} /></div>)}
+        </dl>
+      </div>
+    </section>
+  ))}
+</Recruit>
+<style>
+  .role { display: grid; gap: var(--sp-7); }
+  @media (min-width: 960px) { .role { grid-template-columns: 5fr 7fr; } }
+  .role__head { display: grid; gap: var(--sp-3); align-content: start; }
+  .role__n { font-family: var(--ff-serif); font-size: var(--fs-2xl); color: var(--c-accent); line-height: 1; }
+  .role__dl { margin: 0; border-top: 1px solid var(--c-ink); }
+  .role__dl div { padding: var(--sp-4) 0; border-bottom: 1px solid var(--c-line); }
+  .role__dl dt { font-size: var(--fs-sm); font-weight: 600; margin-bottom: var(--sp-2); }
+</style>

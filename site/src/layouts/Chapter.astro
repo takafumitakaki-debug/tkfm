@@ -1,0 +1,18 @@
+---
+// 01〜05 の章ページ共通骨格：章扉 → 章内ナビ → 本文 → 次の章へ（docs/03_lower_pages.md 冒頭）
+import Base from './Base.astro';
+import ChapterHero from '../components/ChapterHero.astro';
+import InPageNav from '../components/InPageNav.astro';
+import NextChapter from '../components/NextChapter.astro';
+import { chapter } from '../lib/data';
+
+interface Props { slug: string; nav?: { label: string; href: string }[]; description?: string; }
+const { slug, nav = [], description } = Astro.props;
+const { current, next } = await chapter(slug);
+---
+<Base title={`${current.num} ${current.title}`} description={description ?? current.question}>
+  <ChapterHero chapter={current} />
+  {nav.length > 0 && <InPageNav items={nav} />}
+  <slot />
+  <NextChapter next={next}><slot name="end" /></NextChapter>
+</Base>

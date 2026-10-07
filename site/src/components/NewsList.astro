@@ -1,0 +1,27 @@
+---
+import { newsCategories } from '../lib/data';
+import { formatDate, ph } from '../lib/text';
+interface Props { items: { id: string; data: { title: string; date: Date; category: keyof typeof newsCategories; draft?: boolean } }[]; }
+const { items } = Astro.props;
+---
+{items.length ? (
+  <ul class="nl">
+    {items.map((n) => (
+      <li>
+        <a href={`/news/${n.id}/`}>
+          <time datetime={n.data.date.toISOString().slice(0, 10)}>{formatDate(n.data.date)}</time>
+          <span class="tag">{newsCategories[n.data.category]}</span>
+          <span class="nl__t" set:html={ph(n.data.title)} />
+          {n.data.draft && <span class="check">下書き（開発時のみ表示）</span>}
+        </a>
+      </li>
+    ))}
+  </ul>
+) : <p class="small">現在、お知らせはありません。</p>}
+<style>
+  .nl { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--c-ink); }
+  a { display: grid; grid-template-columns: auto auto 1fr; gap: var(--sp-2) var(--sp-5); align-items: baseline; padding: var(--sp-5) var(--sp-2); border-bottom: 1px solid var(--c-line); text-decoration: none; }
+  @media (max-width: 599px) { a { grid-template-columns: auto 1fr; } .nl__t { grid-column: 1 / -1; } }
+  time { font-size: var(--fs-sm); color: var(--c-ink-2); font-variant-numeric: tabular-nums; }
+  .nl__t { font-weight: 500; }
+</style>

@@ -1,0 +1,10 @@
+---
+import NewsIndex from '../../../components/NewsIndex.astro';
+import { news, newsCategories } from '../../../lib/data';
+export function getStaticPaths() {
+  return Object.keys(newsCategories).map((cat) => ({ params: { cat } }));
+}
+const cat = Astro.params.cat as keyof typeof newsCategories;
+const items = (await news()).filter((n) => n.data.category === cat);
+---
+<NewsIndex items={items} page={1} category={cat} all />

@@ -1,0 +1,102 @@
+---
+import Chapter from '../../layouts/Chapter.astro';
+import Photo from '../../components/Photo.astro';
+import Text from '../../components/Text.astro';
+import Flow from '../../components/Flow.astro';
+import SectionHead from '../../components/SectionHead.astro';
+import InterviewCard from '../../components/InterviewCard.astro';
+import { single, interviews } from '../../lib/data';
+import { ph } from '../../lib/text';
+const p = await single('people');
+const list = await interviews();
+---
+<Chapter slug="people" nav={[
+  { label: '人についての考え方', href: '#stance' },
+  { label: '仕事の流れと部署', href: '#departments' },
+  { label: '社員インタビュー', href: '#interviews' },
+  { label: '1日の仕事', href: '#days' },
+  { label: '働く環境', href: '#environment' },
+]}>
+  <section id="stance" class="section">
+    <div class="container grid grid--2" style="align-items: center">
+      <div class="stack">
+        <SectionHead en="Our Stance" title="人についての考え方" />
+        <Text as="p" class="lead" value={p.stance} />
+        {p.culture && <Text as="p" class="small" value={p.culture} />}
+      </div>
+      <Photo photo={p.stancePhoto} ratio="land" />
+    </div>
+  </section>
+
+  <section id="departments" class="section section--alt">
+    <div class="container">
+      <SectionHead en="Departments" title="仕事の流れと部署" lead="03 事業で紹介した「食材が届くまで」の流れを、今度は担っている人の視点で。" />
+      <Flow title="食材が届くまでと、担当する部署" steps={p.departments.map((d) => ({ step: d.name, dept: d.members ? `${d.members}` : undefined }))} />
+      <div class="grid grid--3 dp">
+        {p.departments.map((d) => (
+          <article class="dp__card" data-reveal>
+            <Photo photo={d.photo} ratio="land" />
+            <h3 class="h-lg">{d.name}<span class="dp__m" set:html={d.members ? ph(d.members) : ''} /></h3>
+            <Text as="p" class="small" value={d.role} />
+            {d.comment && <Text as="p" class="dp__c serif" value={`「${d.comment}」`} />}
+            {d.interview && <a class="textlink" href={`/people/interview/${d.interview}/`}>インタビューを読む</a>}
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section id="interviews" class="section">
+    <div class="container">
+      <SectionHead en="Interviews" title="社員インタビュー" />
+      <div class="grid grid--3">{list.map((i) => <InterviewCard entry={i} />)}</div>
+    </div>
+  </section>
+
+  {p.days.length > 0 && (
+    <section id="days" class="section section--alt">
+      <div class="container">
+        <SectionHead en="A Day" title="1日の仕事" />
+        <div class="grid grid--2">
+          {p.days.map((d) => (
+            <div data-reveal>
+              <h3 class="h-lg" style="margin-bottom: var(--sp-4)">{d.role}の1日</h3>
+              <ol class="day">
+                {d.schedule.map((s) => <li><span class="day__t" set:html={ph(s.time)} /><span set:html={ph(s.text)} /></li>)}
+              </ol>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section id="environment" class="section">
+    <div class="container grid grid--2" style="align-items: center">
+      <div class="stack">
+        <SectionHead en="Environment" title="働く環境" />
+        <Text as="p" value={p.environment} />
+        <a class="textlink" href="/recruit/environment/">働く環境の詳細</a>
+      </div>
+      <div class="stack">{p.environmentPhotos.map((ph_) => <Photo photo={ph_} ratio="land" />)}</div>
+    </div>
+  </section>
+
+  <section class="section section--deep">
+    <div class="container" style="text-align: center">
+      <Text as="p" class="h-xl serif" value={p.recruitCopy} />
+      <p style="margin-top: var(--sp-6)"><a class="btn btn--primary" href="/recruit/">採用サイトを見る</a></p>
+    </div>
+  </section>
+</Chapter>
+<style>
+  .dp { margin-top: var(--sp-7); }
+  .dp__card { display: grid; gap: var(--sp-2); align-content: start; }
+  .dp__card h3 { margin-top: var(--sp-3); }
+  .dp__m { margin-left: .6em; font-size: var(--fs-xs); font-family: var(--ff-sans); color: var(--c-ink-2); font-weight: 400; }
+  .dp__c { font-size: var(--fs-sm); }
+  .day { list-style: none; padding: 0; margin: 0; border-left: 1px solid var(--c-line); }
+  .day li { display: grid; grid-template-columns: 6em 1fr; gap: var(--sp-4); padding: 0 0 var(--sp-4) var(--sp-5); position: relative; }
+  .day li::before { content: ""; position: absolute; left: -4px; top: .8em; width: 7px; height: 7px; border-radius: 50%; background: var(--c-accent); }
+  .day__t { font-family: var(--ff-serif); color: var(--c-accent); }
+</style>
