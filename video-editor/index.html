@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TKFM 動画エディタ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700&family=Noto+Serif+JP:wght@400;700&family=M+PLUS+Rounded+1c:wght@400;700&family=Zen+Maru+Gothic:wght@400;700&family=Dela+Gothic+One&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="app-head">
+    <div class="brand">TKFM <span>Video Editor</span></div>
+    <div class="head-actions">
+      <button id="btn-undo" class="icon-btn" title="元に戻す (Ctrl+Z)">↶</button>
+      <button id="btn-redo" class="icon-btn" title="やり直し (Ctrl+Y)">↷</button>
+      <span class="sep"></span>
+      <button id="btn-new">新規</button>
+      <button id="btn-open">開く</button>
+      <button id="btn-save" title="プロジェクトを保存 (Ctrl+S)">保存</button>
+      <button id="btn-export" class="primary">書き出し</button>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="panel bin">
+      <div class="panel-head">
+        <span>素材</span>
+        <button id="btn-import" class="small">＋読み込み</button>
+      </div>
+      <div id="media-list" class="media-list"></div>
+      <input type="file" id="file-input" multiple accept="video/*,image/*,audio/*" hidden>
+    </section>
+
+    <section class="viewer">
+      <div class="stage" id="stage">
+        <canvas id="preview" width="1920" height="1080"></canvas>
+      </div>
+      <div class="transport">
+        <button id="btn-start" class="icon-btn" title="先頭へ (Home)">⏮</button>
+        <button id="btn-back" class="icon-btn" title="1フレーム戻る (←)">◀︎|</button>
+        <button id="btn-play" class="icon-btn play" title="再生／一時停止 (Space)">▶</button>
+        <button id="btn-fwd" class="icon-btn" title="1フレーム進む (→)">|▶︎</button>
+        <button id="btn-end" class="icon-btn" title="末尾へ (End)">⏭</button>
+        <span id="timecode" class="timecode">00:00.00 / 00:00.00</span>
+        <span class="spacer"></span>
+        <button id="btn-snapshot" class="small" title="現在のフレームを PNG で保存">静止画を保存</button>
+      </div>
+    </section>
+
+    <section class="panel props">
+      <div class="panel-head"><span id="props-title">プロパティ</span></div>
+      <div id="props" class="props-body"></div>
+    </section>
+  </main>
+
+  <section class="timeline" id="timeline">
+    <div class="tl-toolbar">
+      <button id="tl-split" title="再生ヘッド位置で分割 (S)">✂ 分割</button>
+      <button id="tl-delete" title="選択クリップを削除 (Delete)">削除</button>
+      <button id="tl-add-text" title="再生ヘッド位置にテキストを追加 (T)">T テキスト追加</button>
+      <label class="check"><input type="checkbox" id="tl-snap" checked> スナップ</label>
+      <span class="spacer"></span>
+      <label class="zoom">ズーム <input type="range" id="tl-zoom" min="0" max="100" step="0.5"></label>
+      <button id="tl-fit" class="small">全体表示</button>
+    </div>
+    <div class="tl-body">
+      <div class="tl-heads">
+        <div class="tl-head ruler-head"></div>
+        <div class="tl-head h-video">映像</div>
+        <div class="tl-head h-text">テキスト</div>
+        <div class="tl-head h-audio">音声</div>
+      </div>
+      <div class="tl-scroll">
+        <div class="tl-inner">
+          <div class="tl-ruler"></div>
+          <div class="tl-track" data-track="video"></div>
+          <div class="tl-track" data-track="text"></div>
+          <div class="tl-track" data-track="audio"></div>
+          <div class="tl-marker"></div>
+          <div class="tl-playhead"><div class="knob"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <dialog id="export-dialog">
+    <form method="dialog" class="dialog-body">
+      <h2>動画を書き出し</h2>
+      <div class="export-setup">
+        <label class="field"><span class="lbl">形式</span><div class="ctrl"><select id="ex-format"></select></div></label>
+        <label class="field"><span class="lbl">画質</span>
+          <div class="ctrl"><select id="ex-quality">
+            <option value="4000000">標準（4 Mbps）</option>
+            <option value="8000000" selected>高画質（8 Mbps）</option>
+            <option value="16000000">最高画質（16 Mbps）</option>
+            <option value="2000000">軽量（2 Mbps）</option>
+          </select></div>
+        </label>
+        <label class="field"><span class="lbl"></span><div class="ctrl"><span class="check"><input type="checkbox" id="ex-monitor"> 書き出し中に音を再生する</span></div></label>
+        <p class="hint" id="ex-summary"></p>
+        <p class="hint">書き出しはタイムラインを実時間で再生しながら録画します。完了までこのタブを前面に表示したままにしてください。</p>
+      </div>
+      <div class="export-progress" hidden>
+        <div class="bar"><div class="fill" id="ex-fill"></div></div>
+        <p id="ex-status" class="hint"></p>
+      </div>
+      <div class="dialog-actions">
+        <button type="button" id="ex-cancel">閉じる</button>
+        <button type="button" id="ex-start" class="primary">書き出し開始</button>
+      </div>
+    </form>
+  </dialog>
+
+  <input type="file" id="project-input" accept=".json,application/json" hidden>
+  <div id="drop-overlay">ファイルをドロップして読み込み</div>
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script src="js/util.js"></script>
+  <script src="js/project.js"></script>
+  <script src="js/media.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/timeline.js"></script>
+  <script src="js/panels.js"></script>
+  <script src="js/exporter.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
