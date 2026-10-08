@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>比較ナビ</title>
+<link rel="icon" href="data:,">
 <style>
   :root {
     --bg: #f6f7f9; --card: #fff; --text: #1d2330; --muted: #677085; --line: #e3e6ec;
@@ -52,15 +53,30 @@
   a { color: var(--accent); }
   @media (max-width: 640px) { .head { grid-template-columns: 64px 1fr; } .thumb { width: 64px; height: 64px; } .price { grid-column: 1 / -1; text-align: left; } }
   .note { color: var(--muted); font-size: .8rem; margin-top: 24px; }
+  .guess { background: var(--card); border: 1px dashed var(--line); border-radius: 10px; padding: 10px 12px; margin: 12px 0; font-size: .88rem; }
+  .guess b { color: var(--accent); }
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  .freshness { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0 16px; font-size: .88rem; color: var(--muted); }
+  .btn-sub { background: var(--card); color: var(--accent); border: 1px solid var(--accent); padding: 6px 12px; font-size: .85rem; }
+  .btn-sub.on { background: var(--accent); color: #fff; }
+  .chg { font-size: .8rem; font-weight: 600; white-space: nowrap; }
+  .chg.down { color: var(--good); } .chg.up { color: var(--warn); }
+  .spark { display: block; margin: 4px 0 0 auto; }
+  .spark polyline { fill: none; stroke: var(--accent); stroke-width: 1.5; }
+  .watch-list { margin-bottom: 16px; }
+  .watch-row { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: .9rem; }
+  .watch-row:last-child { border-bottom: 0; }
+  .watch-row .alert { color: var(--good); font-size: .8rem; }
+  .link-btn { background: none; color: var(--accent); border: 0; padding: 4px 6px; font-weight: 400; cursor: pointer; }
 </style>
 </head>
 <body>
 <main>
   <h1>比較ナビ</h1>
-  <p class="lead">欲しいものを入力すると、複数のショップから同じ項目（価格・送料・ポイント・評価・レビュー数）を集めて、同じ商品ごとにまとめて比較・おすすめします。</p>
+  <p class="lead">欲しいものを入力すると、複数のショップから同じ項目（価格・送料・ポイント・評価・レビュー数）を集めて、同じ商品ごとにまとめて比較・おすすめします。うろ覚えの商品名でも推測して探し、ウォッチ登録すると価格を定期的に取り直します。</p>
 
   <form id="f">
-    <input name="q" placeholder="例：ワイヤレスイヤホン ノイズキャンセリング" required autofocus>
+    <input name="q" placeholder="例：モナルシーダネオ3 wide elite 27cm（うろ覚えでもOK）" required autofocus>
     <input name="budget" type="number" min="0" step="100" placeholder="予算（円）">
     <select name="priority">
       <option value="balance">バランス</option>
@@ -70,7 +86,10 @@
     <button>比較する</button>
   </form>
 
+  <div id="watches"></div>
   <div id="status" class="status"></div>
+  <div id="guess"></div>
+  <div id="freshness"></div>
   <div id="results"></div>
 
   <p class="note">実質価格 ＝ 本体価格 ＋ 送料 − ポイント。送料が「別」でAPIから金額が取れない場合は0円として計算し、表に「別」と表示します。価格・在庫は各ショップでご確認ください。</p>
@@ -110,6 +129,108 @@ function offerTable(item) {
     el('tbody', {}, rows)));
 }
 
+const ago = (t) => {
+  const m = Math.round((Date.now() - t) / 60000);
+  return m < 1 ? 'たった今' : m < 60 ? `${m}分前` : m < 1440 ? `${Math.round(m / 60)}時間前` : `${Math.round(m / 1440)}日前`;
+};
+const fmtTime = (t) => new Date(t).toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+function priceChange(item) {
+  const c = item.priceChange;
+  if (!c || !c.diff) return null;
+  const down = c.diff < 0;
+  return el('div', { class: 'chg ' + (down ? 'down' : 'up'), title: `${fmtTime(c.since)} 時点 ${yen(c.from)}` },
+    `${down ? '▼' : '▲'}${yen(Math.abs(c.diff))}（前回比）`);
+}
+
+function sparkline(points) {
+  if (!points || points.length < 2) return null;
+  const w = 90, h = 24, prices = points.map((p) => p.price);
+  const min = Math.min(...prices), max = Math.max(...prices), span = max - min || 1;
+  const pts = prices.map((p, i) => `${(i / (prices.length - 1)) * w},${h - 2 - ((p - min) / span) * (h - 4)}`).join(' ');
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('width', w); svg.setAttribute('height', h); svg.setAttribute('class', 'spark');
+  svg.setAttribute('aria-label', `価格推移 ${points.length}回分`);
+  const line = document.createElementNS(ns, 'polyline');
+  line.setAttribute('points', pts);
+  const title = document.createElementNS(ns, 'title');
+  title.textContent = points.map((p) => `${fmtTime(p.at)} ${yen(p.price)}`).join('\n');
+  svg.append(title, line);
+  return svg;
+}
+
+function renderGuess(data) {
+  const parts = [];
+  const ai = data.interpretation;
+  if (ai) {
+    parts.push(el('div', {}, 'もしかして：', el('b', {}, ai.product),
+      ai.brand || ai.category ? `（${[ai.brand, ai.category].filter(Boolean).join('／')}）` : ''));
+    if (ai.note) parts.push(el('div', { class: 'meta' }, ai.note));
+  } else if (data.analysis && data.analysis.core && data.analysis.core !== data.query) {
+    parts.push(el('div', {}, '推測した検索語：', el('b', {}, data.analysis.core)));
+  }
+  if (data.analysis && data.analysis.attrs.length) {
+    parts.push(el('div', { class: 'chips' }, '条件：', ...data.analysis.attrs.map((a) => el('span', { class: 'badge' }, a.text))));
+  }
+  if (data.plan && data.plan.length) {
+    parts.push(el('div', { class: 'chips meta' }, '試した検索：',
+      ...data.plan.map((p) => el('span', { class: 'badge' }, `${p.query}（+${p.added}）`))));
+  }
+  const ex = data.excluded || {};
+  if (ex.lowRelevance || ex.attrMismatch) {
+    parts.push(el('div', { class: 'meta' },
+      [ex.lowRelevance ? `関連の薄い ${ex.lowRelevance}件` : '', ex.attrMismatch ? `条件に合わない ${ex.attrMismatch}件` : '']
+        .filter(Boolean).join('・') + 'を除外'));
+  }
+  $('#guess').replaceChildren(parts.length ? el('div', { class: 'guess' }, parts) : '');
+}
+
+function renderFreshness(data) {
+  const refreshBtn = el('button', { class: 'btn-sub', type: 'button' }, '最新に更新');
+  refreshBtn.onclick = () => search({ refresh: true });
+  const watchBtn = el('button', { class: 'btn-sub' + (data.watched ? ' on' : ''), type: 'button' },
+    data.watched ? 'ウォッチ中' : 'ウォッチ登録（定期更新）');
+  watchBtn.onclick = async () => {
+    if (data.watched) return;
+    const fd = new FormData($('#f'));
+    await fetch('/api/watch', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ q: data.query, priority: fd.get('priority'), budget: fd.get('budget') }) });
+    data.watched = true;
+    renderFreshness(data);
+    loadWatches();
+  };
+  $('#freshness').replaceChildren(el('div', { class: 'freshness' },
+    `最終取得：${fmtTime(data.fetchedAt)}（${ago(data.fetchedAt)}${data.cached ? '・保存済みの結果' : ''}）`,
+    refreshBtn, watchBtn));
+}
+
+async function loadWatches() {
+  let data;
+  try { data = await (await fetch('/api/watch')).json(); } catch { return; }
+  if (!data.watches.length) return $('#watches').replaceChildren();
+  const refreshAll = el('button', { class: 'link-btn', type: 'button' }, 'すべて今すぐ更新');
+  refreshAll.onclick = async () => {
+    refreshAll.textContent = '更新中…';
+    await fetch('/api/watch/refresh', { method: 'POST' });
+    loadWatches();
+  };
+  const rows = data.watches.map((w) => {
+    const open = el('button', { class: 'link-btn', type: 'button' }, '開く');
+    open.onclick = () => { $('#f').elements.q.value = w.q; search(); };
+    const del = el('button', { class: 'link-btn', type: 'button' }, '解除');
+    del.onclick = async () => { await fetch('/api/watch?id=' + encodeURIComponent(w.id), { method: 'DELETE' }); loadWatches(); };
+    const alert = w.alerts[0];
+    return el('div', { class: 'watch-row' },
+      el('div', {}, el('b', {}, w.q), el('div', { class: 'meta' },
+        w.lastBest ? `いまの1位 ${yen(w.lastBest.price)}（${w.lastBest.shop}）・` : '', w.lastRunAt ? `更新 ${ago(w.lastRunAt)}` : '未取得'),
+        alert ? el('div', { class: 'alert' }, `▼ ${fmtTime(alert.at)} に ${yen(alert.from)} → ${yen(alert.to)} 値下がり`) : null),
+      open, del);
+  });
+  $('#watches').replaceChildren(el('div', { class: 'card watch-list' },
+    el('div', { class: 'meta' }, `ウォッチ中（${data.intervalMin}分ごとに自動更新） `, refreshAll), rows));
+}
+
 function itemCard(item, rank) {
   const img = safeUrl(item.image);
   return el('div', { class: 'card' + (rank === 0 ? ' top' : '') },
@@ -123,7 +244,10 @@ function itemCard(item, rank) {
           `${item.shopCount}ショップ`, ' ', ...item.sources.map((s) => el('span', { class: 'badge' }, s)))),
       el('div', { class: 'price' },
         el('div', { class: 'meta' }, '最安（実質）'), el('b', {}, yen(item.bestOffer.effectivePrice)),
+        priceChange(item),
+        item.isLowestEver ? el('div', {}, el('span', { class: 'badge' }, '記録中の最安値')) : null,
         item.maxPrice > item.minPrice ? el('div', { class: 'meta' }, `〜${yen(item.maxPrice)}`) : null,
+        sparkline(item.priceHistory),
         el('div', { class: 'score' }, `おすすめ度 ${item.score}`))),
     item.reasons.length ? el('ul', { class: 'reasons' }, item.reasons.map((r) => el('li', {}, r))) : null,
     el('details', rank === 0 ? { open: '' } : {}, el('summary', {}, `ショップ別に比較（${item.offers.length}件）`), offerTable(item)));
@@ -142,34 +266,42 @@ function renderStatus(data) {
   );
 }
 
-$('#f').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const fd = new FormData(e.target);
+async function search({ refresh = false } = {}) {
+  const form = $('#f');
+  const fd = new FormData(form);
   const params = new URLSearchParams([...fd].filter(([, v]) => v !== ''));
+  if (!params.get('q')) return;
   history.replaceState(null, '', '?' + params);
-  const btn = e.target.querySelector('button');
+  if (refresh) params.set('refresh', '1');
+  const btn = form.querySelector('button');
   btn.disabled = true; btn.textContent = '収集中…';
-  $('#status').textContent = '各ショップから収集しています…';
-  $('#results').replaceChildren();
+  $('#status').textContent = refresh ? '最新の情報を取り直しています…' : '検索語を推測して、各ショップから収集しています…';
+  $('#results').replaceChildren(); $('#guess').replaceChildren(); $('#freshness').replaceChildren();
   try {
     const res = await fetch('/api/search?' + params);
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || res.statusText);
     renderStatus(data);
+    renderGuess(data);
+    renderFreshness(data);
     $('#results').replaceChildren(...(data.items.length
       ? data.items.map(itemCard)
       : [el('div', { class: 'card' }, '条件に合う商品が見つかりませんでした。キーワードや予算を変えてみてください。')]));
+    if (data.watched) loadWatches();
   } catch (err) {
     $('#status').replaceChildren(el('span', { class: 'err' }, 'エラー：' + err.message));
   } finally {
     btn.disabled = false; btn.textContent = '比較する';
   }
-});
+}
+
+$('#f').addEventListener('submit', (e) => { e.preventDefault(); search(); });
+loadWatches();
 
 // URLの検索条件を復元（共有リンク用）
 const init = new URLSearchParams(location.search);
 for (const [k, v] of init) { const f = $('#f').elements[k]; if (f) f.value = v; }
-if (init.get('q')) $('#f').requestSubmit();
+if (init.get('q')) search();
 </script>
 </body>
 </html>

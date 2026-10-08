@@ -38,6 +38,8 @@ function summarizeGroup(offers) {
     bayesRating,
     reviewCount,
     shopCount: new Set(offers.map((o) => `${o.source}:${o.shop}`)).size,
+    relevance: Math.max(...offers.map((o) => (o.relevance == null ? 1 : o.relevance))),
+    attrMatch: offers.some((o) => o.attrMatch === true) ? true : null,
     sources: [...new Set(offers.map((o) => o.sourceLabel))],
   };
 }
@@ -59,6 +61,7 @@ function reasonsFor(g, ctx) {
   if (g.shopCount >= 3) reasons.push(`${g.shopCount}ショップで取扱いあり・価格比較しやすい`);
   if (g.bestOffer.points > 0) reasons.push(`最安ショップで ${g.bestOffer.points.toLocaleString()}pt 還元`);
   if (g.bestOffer.shipping === 0) reasons.push('最安ショップは送料無料');
+  if (g.attrMatch) reasons.push('指定の条件（サイズ等）が商品名に記載あり');
   return reasons;
 }
 
@@ -95,7 +98,9 @@ function recommend(groups, { priority = 'balance', budget = null } = {}) {
       };
       const score =
         parts.price * w.price + parts.rating * w.rating + parts.popularity * w.popularity + parts.offers * w.offers;
-      return { ...g, score: Math.round(score * 100), scoreParts: parts, reasons: reasonsFor(g, ctx) };
+      // 検索語との関連度が低い候補は割り引く（推測検索で広げた結果が上に来すぎないように）
+      const adjusted = score * (0.6 + 0.4 * g.relevance);
+      return { ...g, score: Math.round(adjusted * 100), scoreParts: parts, reasons: reasonsFor(g, ctx) };
     })
     .sort((a, b) => b.score - a.score);
 

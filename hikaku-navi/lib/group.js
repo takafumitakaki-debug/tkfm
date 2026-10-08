@@ -24,12 +24,15 @@ function normalizeTitle(title) {
   return t.replace(/[\s　・／/|｜,、。!！?？()（）「」『』]+/g, ' ').trim();
 }
 
+// 27cm, 128gb, 500ml のような数量表記は型番ではない
+const UNIT_TOKEN = /^\d+(\.\d+)?(cm|mm|m|gb|tb|mb|ml|l|kg|g|w|v|mah|inch|in|hz|pcs|p|個|枚)$/;
+
 // 型番らしいトークン：英字と数字を両方含み、3文字以上（例: wh-1000xm5, ipad10）
 function modelNumbers(normTitle) {
   const tokens = normTitle.match(/[a-z0-9][a-z0-9\-_.]{2,}/g) || [];
   return new Set(
     tokens
-      .filter((tok) => /[a-z]/.test(tok) && /\d/.test(tok))
+      .filter((tok) => /[a-z]/.test(tok) && /\d/.test(tok) && !UNIT_TOKEN.test(tok))
       .map((tok) => tok.replace(/[-_.]/g, ''))
   );
 }

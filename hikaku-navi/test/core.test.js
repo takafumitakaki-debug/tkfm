@@ -53,3 +53,11 @@ test('在庫切れは最安でも最安ショップにしない', () => {
   assert.strictEqual(r.items[0].bestOffer.price, 200);
   assert.strictEqual(r.items[0].offers[0].price, 200);
 });
+
+test('サイズ表記（27cm など）は型番とみなさない', () => {
+  const groups = groupOffers([
+    o({ title: 'スパイク スタンダード DM-100 27cm', price: 1 }),
+    o({ title: 'スパイク プロ DM-107 27cm', price: 2 }),
+  ]);
+  assert.strictEqual(groups.length, 2);
+});
