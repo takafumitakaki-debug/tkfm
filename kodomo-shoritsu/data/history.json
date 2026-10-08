@@ -1,0 +1,460 @@
+{
+ "_note": "年次の確定データ。1970〜2025年は手入力の概算値。2026年以降は scripts/update_data.py が年明けに自動で追加する。",
+ "base": {
+  "fx_end_1969": 358,
+  "nk_end_1969": 2359
+ },
+ "sp_dividend_yield_pct": 1.3,
+ "nk_dividend_yield_pct": 1.7,
+ "default_dep_pct": 0.3,
+ "years": [
+  {
+   "year": 1970,
+   "sp_tr": 4.01,
+   "fx_end": 358,
+   "nk_end": 1987,
+   "dep": 5.5,
+   "source": "manual"
+  },
+  {
+   "year": 1971,
+   "sp_tr": 14.31,
+   "fx_end": 315,
+   "nk_end": 2714,
+   "dep": 5.5,
+   "source": "manual"
+  },
+  {
+   "year": 1972,
+   "sp_tr": 18.98,
+   "fx_end": 302,
+   "nk_end": 5208,
+   "dep": 5.5,
+   "source": "manual"
+  },
+  {
+   "year": 1973,
+   "sp_tr": -14.66,
+   "fx_end": 280,
+   "nk_end": 4307,
+   "dep": 5.5,
+   "source": "manual"
+  },
+  {
+   "year": 1974,
+   "sp_tr": -26.47,
+   "fx_end": 301,
+   "nk_end": 3817,
+   "dep": 5.5,
+   "source": "manual"
+  },
+  {
+   "year": 1975,
+   "sp_tr": 37.2,
+   "fx_end": 305,
+   "nk_end": 4359,
+   "dep": 5.5,
+   "source": "manual"
+  },
+  {
+   "year": 1976,
+   "sp_tr": 23.84,
+   "fx_end": 293,
+   "nk_end": 4991,
+   "dep": 5.5,
+   "source": "manual"
+  },
+  {
+   "year": 1977,
+   "sp_tr": -7.18,
+   "fx_end": 240,
+   "nk_end": 4866,
+   "dep": 5.5,
+   "source": "manual"
+  },
+  {
+   "year": 1978,
+   "sp_tr": 6.56,
+   "fx_end": 195,
+   "nk_end": 6002,
+   "dep": 5.5,
+   "source": "manual"
+  },
+  {
+   "year": 1979,
+   "sp_tr": 18.44,
+   "fx_end": 240,
+   "nk_end": 6570,
+   "dep": 5.5,
+   "source": "manual"
+  },
+  {
+   "year": 1980,
+   "sp_tr": 32.42,
+   "fx_end": 203,
+   "nk_end": 7116,
+   "dep": 5.0,
+   "source": "manual"
+  },
+  {
+   "year": 1981,
+   "sp_tr": -4.91,
+   "fx_end": 220,
+   "nk_end": 7682,
+   "dep": 5.0,
+   "source": "manual"
+  },
+  {
+   "year": 1982,
+   "sp_tr": 21.55,
+   "fx_end": 235,
+   "nk_end": 8017,
+   "dep": 5.0,
+   "source": "manual"
+  },
+  {
+   "year": 1983,
+   "sp_tr": 22.56,
+   "fx_end": 232,
+   "nk_end": 9894,
+   "dep": 5.0,
+   "source": "manual"
+  },
+  {
+   "year": 1984,
+   "sp_tr": 6.27,
+   "fx_end": 251,
+   "nk_end": 11543,
+   "dep": 5.0,
+   "source": "manual"
+  },
+  {
+   "year": 1985,
+   "sp_tr": 31.73,
+   "fx_end": 200,
+   "nk_end": 13113,
+   "dep": 5.0,
+   "source": "manual"
+  },
+  {
+   "year": 1986,
+   "sp_tr": 18.67,
+   "fx_end": 160,
+   "nk_end": 18701,
+   "dep": 5.0,
+   "source": "manual"
+  },
+  {
+   "year": 1987,
+   "sp_tr": 5.25,
+   "fx_end": 122,
+   "nk_end": 21564,
+   "dep": 5.0,
+   "source": "manual"
+  },
+  {
+   "year": 1988,
+   "sp_tr": 16.61,
+   "fx_end": 125,
+   "nk_end": 30159,
+   "dep": 5.0,
+   "source": "manual"
+  },
+  {
+   "year": 1989,
+   "sp_tr": 31.69,
+   "fx_end": 143,
+   "nk_end": 38916,
+   "dep": 5.0,
+   "source": "manual"
+  },
+  {
+   "year": 1990,
+   "sp_tr": -3.1,
+   "fx_end": 135,
+   "nk_end": 23849,
+   "dep": 6.0,
+   "source": "manual"
+  },
+  {
+   "year": 1991,
+   "sp_tr": 30.47,
+   "fx_end": 125,
+   "nk_end": 22984,
+   "dep": 5.5,
+   "source": "manual"
+  },
+  {
+   "year": 1992,
+   "sp_tr": 7.62,
+   "fx_end": 124,
+   "nk_end": 16925,
+   "dep": 3.5,
+   "source": "manual"
+  },
+  {
+   "year": 1993,
+   "sp_tr": 10.08,
+   "fx_end": 112,
+   "nk_end": 17417,
+   "dep": 2.5,
+   "source": "manual"
+  },
+  {
+   "year": 1994,
+   "sp_tr": 1.32,
+   "fx_end": 100,
+   "nk_end": 19723,
+   "dep": 2.0,
+   "source": "manual"
+  },
+  {
+   "year": 1995,
+   "sp_tr": 37.58,
+   "fx_end": 103,
+   "nk_end": 19868,
+   "dep": 1.0,
+   "source": "manual"
+  },
+  {
+   "year": 1996,
+   "sp_tr": 22.96,
+   "fx_end": 116,
+   "nk_end": 19361,
+   "dep": 0.3,
+   "source": "manual"
+  },
+  {
+   "year": 1997,
+   "sp_tr": 33.36,
+   "fx_end": 130,
+   "nk_end": 15259,
+   "dep": 0.3,
+   "source": "manual"
+  },
+  {
+   "year": 1998,
+   "sp_tr": 28.58,
+   "fx_end": 116,
+   "nk_end": 13842,
+   "dep": 0.3,
+   "source": "manual"
+  },
+  {
+   "year": 1999,
+   "sp_tr": 21.04,
+   "fx_end": 102,
+   "nk_end": 18934,
+   "dep": 0.3,
+   "source": "manual"
+  },
+  {
+   "year": 2000,
+   "sp_tr": -9.1,
+   "fx_end": 114,
+   "nk_end": 13786,
+   "dep": 0.02,
+   "source": "manual"
+  },
+  {
+   "year": 2001,
+   "sp_tr": -11.89,
+   "fx_end": 132,
+   "nk_end": 10543,
+   "dep": 0.02,
+   "source": "manual"
+  },
+  {
+   "year": 2002,
+   "sp_tr": -22.1,
+   "fx_end": 120,
+   "nk_end": 8579,
+   "dep": 0.02,
+   "source": "manual"
+  },
+  {
+   "year": 2003,
+   "sp_tr": 28.68,
+   "fx_end": 107,
+   "nk_end": 10677,
+   "dep": 0.02,
+   "source": "manual"
+  },
+  {
+   "year": 2004,
+   "sp_tr": 10.88,
+   "fx_end": 104,
+   "nk_end": 11489,
+   "dep": 0.02,
+   "source": "manual"
+  },
+  {
+   "year": 2005,
+   "sp_tr": 4.91,
+   "fx_end": 118,
+   "nk_end": 16111,
+   "dep": 0.02,
+   "source": "manual"
+  },
+  {
+   "year": 2006,
+   "sp_tr": 15.79,
+   "fx_end": 119,
+   "nk_end": 17226,
+   "dep": 0.02,
+   "source": "manual"
+  },
+  {
+   "year": 2007,
+   "sp_tr": 5.49,
+   "fx_end": 112,
+   "nk_end": 15308,
+   "dep": 0.02,
+   "source": "manual"
+  },
+  {
+   "year": 2008,
+   "sp_tr": -37.0,
+   "fx_end": 91,
+   "nk_end": 8860,
+   "dep": 0.02,
+   "source": "manual"
+  },
+  {
+   "year": 2009,
+   "sp_tr": 26.46,
+   "fx_end": 93,
+   "nk_end": 10546,
+   "dep": 0.02,
+   "source": "manual"
+  },
+  {
+   "year": 2010,
+   "sp_tr": 15.06,
+   "fx_end": 81,
+   "nk_end": 10229,
+   "dep": 0.02,
+   "source": "manual"
+  },
+  {
+   "year": 2011,
+   "sp_tr": 2.11,
+   "fx_end": 77,
+   "nk_end": 8455,
+   "dep": 0.02,
+   "source": "manual"
+  },
+  {
+   "year": 2012,
+   "sp_tr": 16.0,
+   "fx_end": 86,
+   "nk_end": 10395,
+   "dep": 0.02,
+   "source": "manual"
+  },
+  {
+   "year": 2013,
+   "sp_tr": 32.39,
+   "fx_end": 105,
+   "nk_end": 16291,
+   "dep": 0.02,
+   "source": "manual"
+  },
+  {
+   "year": 2014,
+   "sp_tr": 13.69,
+   "fx_end": 120,
+   "nk_end": 17451,
+   "dep": 0.02,
+   "source": "manual"
+  },
+  {
+   "year": 2015,
+   "sp_tr": 1.38,
+   "fx_end": 120,
+   "nk_end": 19034,
+   "dep": 0.02,
+   "source": "manual"
+  },
+  {
+   "year": 2016,
+   "sp_tr": 11.96,
+   "fx_end": 117,
+   "nk_end": 19114,
+   "dep": 0.02,
+   "source": "manual"
+  },
+  {
+   "year": 2017,
+   "sp_tr": 21.83,
+   "fx_end": 113,
+   "nk_end": 22765,
+   "dep": 0.02,
+   "source": "manual"
+  },
+  {
+   "year": 2018,
+   "sp_tr": -4.38,
+   "fx_end": 110,
+   "nk_end": 20015,
+   "dep": 0.02,
+   "source": "manual"
+  },
+  {
+   "year": 2019,
+   "sp_tr": 31.49,
+   "fx_end": 109,
+   "nk_end": 23657,
+   "dep": 0.02,
+   "source": "manual"
+  },
+  {
+   "year": 2020,
+   "sp_tr": 18.4,
+   "fx_end": 103,
+   "nk_end": 27444,
+   "dep": 0.02,
+   "source": "manual"
+  },
+  {
+   "year": 2021,
+   "sp_tr": 28.71,
+   "fx_end": 115,
+   "nk_end": 28792,
+   "dep": 0.02,
+   "source": "manual"
+  },
+  {
+   "year": 2022,
+   "sp_tr": -18.11,
+   "fx_end": 131,
+   "nk_end": 26095,
+   "dep": 0.02,
+   "source": "manual"
+  },
+  {
+   "year": 2023,
+   "sp_tr": 26.29,
+   "fx_end": 141,
+   "nk_end": 33464,
+   "dep": 0.02,
+   "source": "manual"
+  },
+  {
+   "year": 2024,
+   "sp_tr": 25.02,
+   "fx_end": 157,
+   "nk_end": 39895,
+   "dep": 0.1,
+   "source": "manual"
+  },
+  {
+   "year": 2025,
+   "sp_tr": 17.88,
+   "fx_end": 157,
+   "nk_end": 50339,
+   "dep": 0.3,
+   "source": "manual"
+  }
+ ]
+}

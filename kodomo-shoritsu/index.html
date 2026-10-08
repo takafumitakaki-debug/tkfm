@@ -96,6 +96,11 @@ svg text { fill: var(--muted); font-family: var(--f-num); font-size: 11px; }
 .legend span::before { content: ""; display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 6px; vertical-align: -1px; background: var(--c); }
 
 .matrix td.hl { font-weight: 700; }
+.mkt { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
+.mkt div { display: grid; gap: 2px; padding: 12px 14px; border-radius: 10px; background: var(--bg); }
+.mkt .k { font-size: 12px; color: var(--muted); font-weight: 700; }
+.mkt .v { font-family: var(--f-display); font-weight: 700; font-size: 22px; }
+.mkt .s { font-size: 12px; color: var(--muted); }
 .foot { font-size: 13px; color: var(--muted); display: grid; gap: 8px; }
 .foot ul { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; }
 @media (prefers-reduced-motion: no-preference) { .bar { transition: height .25s, y .25s; } }
@@ -106,7 +111,7 @@ svg text { fill: var(--muted); font-family: var(--f-num); font-size: 11px; }
   <header style="display:grid;gap:8px">
     <div class="eyebrow">子どもの教育資金・長期積立</div>
     <h1>こども積立 勝率ナビ</h1>
-    <p class="lead">1970〜2025年の実際の値動きで「毎月つみたてていたら、何回に何回は元本割れしなかったか」を数えます。過去の勝率で比べる道具であって、将来の利益を約束するものではありません。</p>
+    <p class="lead"><span class="range">1970〜2025</span>年の実際の値動きで「毎月つみたてていたら、何回に何回は元本割れしなかったか」を数えます。過去の勝率で比べる道具であって、将来の利益を約束するものではありません。</p>
   </header>
 
   <section class="notice" aria-label="はじめに確認すること">
@@ -118,6 +123,14 @@ svg text { fill: var(--muted); font-family: var(--f-num); font-size: 11px; }
       <h3>ジュニアNISAは新規購入できません</h3>
       <p>2023年末で新しい買付は終了しました。2027年からは18歳未満もつみたて投資枠を使える「こども支援NISA」（年60万円・総額600万円、12歳以降に払出し可の予定）が始まる見込みです。最新の条件は金融庁の案内で確認してください。</p>
     </div>
+  </section>
+
+  <section class="panel" aria-labelledby="mkt">
+    <div style="display:grid;gap:4px">
+      <h2 id="mkt">いまの市場（<span id="mktYear"></span>年の年初来）</h2>
+      <p class="lead" style="font-size:13px" id="mktSub"></p>
+    </div>
+    <div class="mkt" id="mktGrid"></div>
   </section>
 
   <section class="panel" aria-labelledby="cond">
@@ -189,25 +202,20 @@ svg text { fill: var(--muted); font-family: var(--f-num); font-size: 11px; }
       <li>日本株：日経平均の年末値の変化に、配当分として年1.7%を足した概算です。</li>
       <li>預金：1年定期のおおよその金利（1970〜80年代は年5%前後、1995年以降はほぼ0%）を使った概算です。インフレで実質的な価値が減る分は計算に入れていません。</li>
       <li>試した期間は1年ずつずらして重ねているため、互いに独立した試行ではありません。1990年のバブル崩壊や2008年の金融危機のように、同じ出来事が複数の期間に影響しています。</li>
+      <li>データは毎日自動で更新します（FRED＝米セントルイス連銀の公開データ）。年が明けて前年の年末値がそろうと、その年が計算に加わります。自動で加わった年の米国株の配当は年1.3%として足しています。<span id="autoNote"></span></li>
       <li>数値は公開されている年次データからの概算で、教育目的の参考値です。特定の金融商品の購入を勧めるものではありません。</li>
     </ul>
   </section>
 </div>
 
+<script src="data.js"></script>
 <script>
-// 年次データ 1970〜2025
-const YEARS = []; for (let y = 1970; y <= 2025; y++) YEARS.push(y);
-// S&P500 配当込み年間リターン（%・ドル建て）
-const SP = [4.01,14.31,18.98,-14.66,-26.47,37.20,23.84,-7.18,6.56,18.44,32.42,-4.91,21.55,22.56,6.27,31.73,18.67,5.25,16.61,31.69,-3.10,30.47,7.62,10.08,1.32,37.58,22.96,33.36,28.58,21.04,-9.10,-11.89,-22.10,28.68,10.88,4.91,15.79,5.49,-37.00,26.46,15.06,2.11,16.00,32.39,13.69,1.38,11.96,21.83,-4.38,31.49,18.40,28.71,-18.11,26.29,25.02,17.88];
-// ドル円 年末レート（1969年末から）
-const FX = [358,358,315,302,280,301,305,293,240,195,240,203,220,235,232,251,200,160,122,125,143,135,125,124,112,100,103,116,130,116,102,114,132,120,107,104,118,119,112,91,93,81,77,86,105,120,120,117,113,110,109,103,115,131,141,157,157];
-// 日経平均 年末終値（1969年末から）
-const NK = [2359,1987,2714,5208,4307,3817,4359,4991,4866,6002,6570,7116,7682,8017,9894,11543,13113,18701,21564,30159,38916,23849,22984,16925,17417,19723,19868,19361,15259,13842,18934,13786,10543,8579,10677,11489,16111,17226,15308,8860,10546,10229,8455,10395,16291,17451,19034,19114,22765,20015,23657,27444,28792,26095,33464,39895,50339];
-// 1年定期のおおよその金利（%）
-const DEP = YEARS.map(y => y < 1980 ? 5.5 : y < 1990 ? 5.0 : y === 1990 ? 6.0 : y === 1991 ? 5.5 : y === 1992 ? 3.5 : y === 1993 ? 2.5 : y === 1994 ? 2.0 : y === 1995 ? 1.0 : y < 2000 ? 0.3 : y < 2024 ? 0.02 : y === 2024 ? 0.1 : 0.3);
+// 年次データ：data.js（scripts/update_data.py が毎日更新）から読む
+const D = window.KODOMO_DATA;
+const YEARS = D.years, SP = D.sp, FX = D.fx, NK = D.nk, DEP = D.dep;
 
 const us = YEARS.map((_, i) => (1 + SP[i] / 100) * (FX[i + 1] / FX[i]) - 1);
-const jp = YEARS.map((_, i) => NK[i + 1] / NK[i] - 1 + 0.017);
+const jp = YEARS.map((_, i) => NK[i + 1] / NK[i] - 1 + D.nk_dividend_yield_pct / 100);
 const dep = DEP.map(d => d / 100);
 const mix = YEARS.map((_, i) => 0.5 * us[i] + 0.5 * jp[i]);
 const half = YEARS.map((_, i) => 0.25 * us[i] + 0.25 * jp[i] + 0.5 * dep[i]);
@@ -313,6 +321,27 @@ function drawChart(res) {
   svg.setAttribute("width", W); svg.setAttribute("height", H);
   svg.innerHTML = g;
 }
+
+function renderMarket() {
+  const first = YEARS[0], last = D.data_through;
+  document.querySelectorAll(".range").forEach(el => el.textContent = `${first}〜${last}`);
+  if (D.auto_years.length) $("autoNote").textContent = `（自動で加わった年：${D.auto_years.join("・")}年）`;
+  const L = D.latest, sec = $("mkt").closest("section");
+  if (!L) { sec.hidden = true; return; }
+  const sign = v => (v >= 0 ? "+" : "") + v.toFixed(1) + "%";
+  const cls = v => v >= 0 ? "pos" : "neg";
+  $("mktYear").textContent = L.year;
+  $("mktSub").textContent = `${L.as_of} 時点のデータ。${L.year}年はまだ途中なので勝率の計算には入れていません（確定は年明け）。`;
+  const items = [
+    ["米国株（円で見た場合）", L.us_yen_ytd, `S&P500 ${L.sp.toLocaleString("ja-JP")}・${L.dates.sp}`],
+    ["日本株（日経平均）", L.nk_ytd, `${L.nk.toLocaleString("ja-JP")}円・${L.dates.nk}`],
+    ["米国株（ドル建て）", L.sp_ytd, `配当を除く値動き`],
+    ["ドル円", L.fx_ytd, `1ドル ${L.fx}円・${L.dates.fx}（プラス＝円安）`],
+  ];
+  $("mktGrid").innerHTML = items.map(([k, v, s]) =>
+    `<div><span class="k">${k}</span><span class="v num ${cls(v)}">${sign(v)}</span><span class="s">${s}</span></div>`).join("");
+}
+renderMarket();
 
 $("age").addEventListener("input", () => {
   const age = +$("age").value;

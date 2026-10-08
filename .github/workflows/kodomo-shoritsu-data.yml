@@ -1,0 +1,40 @@
+name: こども積立 勝率ナビ データ更新
+
+on:
+  schedule:
+    # 毎日 7:23（日本時間）。米国市場が閉まり、日経平均の前日分もそろった後
+    - cron: "23 22 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: kodomo-shoritsu-data
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 最新データを取得
+        run: python kodomo-shoritsu/scripts/update_data.py
+
+      - name: 変わっていればコミット
+        run: |
+          git add kodomo-shoritsu/data.js kodomo-shoritsu/data/history.json
+          if git diff --cached --quiet; then
+            echo "データに変化なし"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "こども積立 勝率ナビ: データ更新 $(date -u +%Y-%m-%d)"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
