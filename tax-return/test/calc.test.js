@@ -1,4 +1,4 @@
-// node --test tax-return/test
+// node --test tax-return/test/*.test.js
 const test = require('node:test');
 const assert = require('node:assert/strict');
 require('../js/rules.js');

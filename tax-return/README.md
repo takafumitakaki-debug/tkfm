@@ -45,4 +45,4 @@
 | `js/calc.js` | 税額計算（DOM に依存しない純粋関数） |
 | `js/store.js` | 保存・バックアップ、CSV の読み書き |
 | `js/app.js` | 各タブの画面、入力、再計算 |
-| `test/calc.test.js` | 計算のテスト（`node --test tax-return/test/`） |
+| `test/calc.test.js` | 計算のテスト（`node --test tax-return/test/*.test.js`） |
