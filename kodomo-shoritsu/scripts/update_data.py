@@ -1,12 +1,13 @@
 """こども積立 勝率ナビのデータを最新化する。
 
-FRED（米セントルイス連銀）の公開CSVから S&P500・日経平均・ドル円の日次終値を取得し、
+FRED（米セントルイス連銀）の公開CSVから S&P500・日経平均・ドル円の日次終値を取得し
+（FREDが応答しないときは Yahoo Finance から取得）、
   1. 年が明けて前年の値が確定したら data/history.json に前年分の年次データを追加
   2. 今年の年初来の動きを data.js に書き出す（index.html がこれを読む）
 GitHub Actions から毎日実行する。標準ライブラリだけで動く。
 
   python scripts/update_data.py                 # FREDから取得
-  python scripts/update_data.py --fixtures DIR  # DIR/<系列>.csv を使う（テスト用）
+  python scripts/update_data.py --fixtures DIR  # DIR/<FRED系列>.csv か DIR/<Yahooシンボル>.json を使う（テスト用）
   python scripts/update_data.py --offline       # 取得せず history.json から data.js だけ作る
 """
 import argparse
@@ -14,15 +15,20 @@ import csv
 import io
 import json
 import sys
+import time
+import urllib.parse
 import urllib.request
-from datetime import date
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 HISTORY = ROOT / "data" / "history.json"
 DATA_JS = ROOT / "data.js"
 SERIES = {"sp": "SP500", "nk": "NIKKEI225", "fx": "DEXJPUS"}
+YAHOO = {"sp": "^GSPC", "nk": "^N225", "fx": "JPY=X"}
 FRED_URL = "https://fred.stlouisfed.org/graph/fredgraph.csv?id={id}&cosd={start}"
+YAHOO_URL = "https://query1.finance.yahoo.com/v8/finance/chart/{sym}?period1={p1}&period2={p2}&interval=1d"
+UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36"
 
 
 def parse_csv(text):
@@ -39,13 +45,56 @@ def parse_csv(text):
     return rows
 
 
-def fetch(series_id, start, fixtures):
+def parse_yahoo(text):
+    """Yahoo Financeのチャート JSON を [(date, float)] に。日付は取引所の現地日付。"""
+    r = json.loads(text)["chart"]["result"][0]
+    tz = timezone(timedelta(seconds=r["meta"].get("gmtoffset", 0)))
+    closes = r["indicators"]["quote"][0]["close"]
+    rows = {}
+    for ts, v in zip(r.get("timestamp") or [], closes):
+        if v is not None:
+            rows[datetime.fromtimestamp(ts, tz).date()] = float(v)
+    return sorted(rows.items())
+
+
+def get(url, tries=3, timeout=30):
+    req = urllib.request.Request(url, headers={"User-Agent": UA, "Accept": "*/*"})
+    for i in range(tries):
+        try:
+            with urllib.request.urlopen(req, timeout=timeout) as res:
+                return res.read().decode("utf-8")
+        except Exception:
+            if i == tries - 1:
+                raise
+            time.sleep(5 * (i + 1))
+
+
+def fetch(key, start, fixtures):
+    """FREDを先に試し、だめならYahoo Financeから取る。"""
+    errors = []
+    sources = [
+        ("FRED", lambda: parse_csv(get(FRED_URL.format(id=SERIES[key], start=start.isoformat())))),
+        ("Yahoo", lambda: parse_yahoo(get(YAHOO_URL.format(
+            sym=urllib.parse.quote(YAHOO[key]),
+            p1=int(datetime(start.year, 1, 1, tzinfo=timezone.utc).timestamp()),
+            p2=int(time.time()) + 86400)))),
+    ]
     if fixtures:
-        return parse_csv((Path(fixtures) / f"{series_id}.csv").read_text())
-    url = FRED_URL.format(id=series_id, start=start.isoformat())
-    req = urllib.request.Request(url, headers={"User-Agent": "kodomo-shoritsu-updater"})
-    with urllib.request.urlopen(req, timeout=60) as res:
-        return parse_csv(res.read().decode("utf-8"))
+        d = Path(fixtures)
+        sources = [
+            ("FRED", lambda: parse_csv((d / f"{SERIES[key]}.csv").read_text())),
+            ("Yahoo", lambda: parse_yahoo((d / f"{YAHOO[key]}.json").read_text())),
+        ]
+    for name, load in sources:
+        try:
+            rows = load()
+            if rows:
+                print(f"{SERIES[key]}: {name}から{len(rows)}件（最新 {rows[-1][0]}）")
+                return rows
+            errors.append(f"{name}: データなし")
+        except Exception as e:
+            errors.append(f"{name}: {e}")
+    raise RuntimeError(f"{SERIES[key]} を取得できません（{' / '.join(errors)}）")
 
 
 def last_in_year(rows, year):
@@ -147,7 +196,7 @@ def main():
         return 0
     start = date(hist["years"][-1]["year"], 1, 1)
     try:
-        data = {k: fetch(sid, start, args.fixtures) for k, sid in SERIES.items()}
+        data = {k: fetch(k, start, args.fixtures) for k in SERIES}
     except Exception as e:  # 取得失敗時は既存データを残したまま失敗終了
         print(f"データ取得に失敗: {e}", file=sys.stderr)
         return 1
