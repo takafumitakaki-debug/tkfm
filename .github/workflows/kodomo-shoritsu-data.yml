@@ -24,6 +24,9 @@ jobs:
           python-version: "3.12"
 
       - name: 最新データを取得
+        env:
+          # FREDの無料APIキー（リポジトリの Settings → Secrets and variables → Actions に登録）
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: python kodomo-shoritsu/scripts/update_data.py
 
       - name: 変わっていればコミット

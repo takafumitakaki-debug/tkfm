@@ -8,7 +8,9 @@
 
 `.github/workflows/kodomo-shoritsu-data.yml` が毎朝7:23（日本時間）に `scripts/update_data.py` を実行し、変化があればコミットする。
 
-- 取得元：FRED（米セントルイス連銀）の公開CSV。S&P500（`SP500`）・日経平均（`NIKKEI225`）・ドル円（`DEXJPUS`）の日次終値。APIキー不要
+- 取得元：FRED（米セントルイス連銀）。S&P500（`SP500`）・日経平均（`NIKKEI225`）・ドル円（`DEXJPUS`）の日次終値
+- **必要な設定**：GitHubのサーバーからはFREDの公開CSVもYahoo Financeも取得を断られるため、FREDの無料APIキーを使う。https://fred.stlouisfed.org/docs/api/api_key.html で無料登録してキーを発行し、リポジトリの Settings → Secrets and variables → Actions → New repository secret に名前 `FRED_API_KEY` で登録する
+- 取得の順番：FRED公式API（キーがあるとき）→ FREDの公開CSV → Yahoo Finance
 - 今年の年初来の動きを `data.js` に書き出し、画面上部の「いまの市場」に表示する
 - 年が明けて前年の年末値が3系列ともそろうと、前年分を `data/history.json` に追加し、勝率の計算に加える。自動で加わる年の米国株は「値上がり率＋配当1.3%」、預金金利は `default_dep_pct`（初期値0.3%）を使う
 - 取得に失敗した日はデータを変えずにActionsが失敗表示になる

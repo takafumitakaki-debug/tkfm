@@ -1,7 +1,7 @@
 """こども積立 勝率ナビのデータを最新化する。
 
 FRED（米セントルイス連銀）の公開CSVから S&P500・日経平均・ドル円の日次終値を取得し
-（FREDが応答しないときは Yahoo Finance から取得）、
+（環境変数 FRED_API_KEY があれば公式APIを優先、取れないときは Yahoo Finance）、
   1. 年が明けて前年の値が確定したら data/history.json に前年分の年次データを追加
   2. 今年の年初来の動きを data.js に書き出す（index.html がこれを読む）
 GitHub Actions から毎日実行する。標準ライブラリだけで動く。
@@ -14,6 +14,7 @@ import argparse
 import csv
 import io
 import json
+import os
 import sys
 import time
 import urllib.parse
@@ -26,6 +27,8 @@ HISTORY = ROOT / "data" / "history.json"
 DATA_JS = ROOT / "data.js"
 SERIES = {"sp": "SP500", "nk": "NIKKEI225", "fx": "DEXJPUS"}
 YAHOO = {"sp": "^GSPC", "nk": "^N225", "fx": "JPY=X"}
+FRED_API_URL = ("https://api.stlouisfed.org/fred/series/observations"
+                "?series_id={id}&api_key={key}&file_type=json&observation_start={start}")
 FRED_URL = "https://fred.stlouisfed.org/graph/fredgraph.csv?id={id}&cosd={start}"
 YAHOO_URL = "https://query1.finance.yahoo.com/v8/finance/chart/{sym}?period1={p1}&period2={p2}&interval=1d"
 UA = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36"
@@ -39,6 +42,18 @@ def parse_csv(text):
             continue
         try:
             rows.append((date.fromisoformat(row[0]), float(row[1])))
+        except ValueError:
+            continue
+    rows.sort()
+    return rows
+
+
+def parse_fred_api(text):
+    """FRED公式APIの JSON を [(date, float)] に。欠損（"."）は飛ばす。"""
+    rows = []
+    for o in json.loads(text)["observations"]:
+        try:
+            rows.append((date.fromisoformat(o["date"]), float(o["value"])))
         except ValueError:
             continue
     rows.sort()
@@ -70,9 +85,14 @@ def get(url, tries=3, timeout=30):
 
 
 def fetch(key, start, fixtures):
-    """FREDを先に試し、だめならYahoo Financeから取る。"""
+    """FRED公式API（キーがあるとき）→ FREDの公開CSV → Yahoo Finance の順に試す。"""
     errors = []
-    sources = [
+    key_env = os.environ.get("FRED_API_KEY", "").strip()
+    sources = []
+    if key_env:
+        sources.append(("FRED API", lambda: parse_fred_api(get(FRED_API_URL.format(
+            id=SERIES[key], key=urllib.parse.quote(key_env), start=start.isoformat())))))
+    sources += [
         ("FRED", lambda: parse_csv(get(FRED_URL.format(id=SERIES[key], start=start.isoformat())))),
         ("Yahoo", lambda: parse_yahoo(get(YAHOO_URL.format(
             sym=urllib.parse.quote(YAHOO[key]),
@@ -82,6 +102,7 @@ def fetch(key, start, fixtures):
     if fixtures:
         d = Path(fixtures)
         sources = [
+            ("FRED API", lambda: parse_fred_api((d / f"{SERIES[key]}.api.json").read_text())),
             ("FRED", lambda: parse_csv((d / f"{SERIES[key]}.csv").read_text())),
             ("Yahoo", lambda: parse_yahoo((d / f"{YAHOO[key]}.json").read_text())),
         ]
