@@ -1,0 +1,307 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>比較ナビ</title>
+<link rel="icon" href="data:,">
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #fff; --text: #1d2330; --muted: #677085; --line: #e3e6ec;
+    --accent: #2357d9; --accent-weak: #e8eefc; --good: #137a4b; --warn: #b4560f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #12151b; --card: #1b2029; --text: #e8ebf2; --muted: #98a1b3; --line: #2c3340;
+      --accent: #7aa2ff; --accent-weak: #1f2a44; --good: #4cc98d; --warn: #f0a35e; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+    font-family: system-ui, -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif; line-height: 1.6; }
+  main { max-width: 960px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 1.6rem; margin: 0 0 4px; }
+  .lead { color: var(--muted); margin: 0 0 20px; }
+  form { display: grid; grid-template-columns: 1fr auto auto auto; gap: 8px; background: var(--card);
+    border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+  input, select, button { font: inherit; padding: 10px 12px; border-radius: 8px; border: 1px solid var(--line);
+    background: var(--bg); color: var(--text); min-width: 0; }
+  button { background: var(--accent); color: #fff; border: 0; font-weight: 600; cursor: pointer; }
+  button:disabled { opacity: .6; cursor: wait; }
+  @media (max-width: 640px) { form { grid-template-columns: 1fr 1fr; } form input[name=q] { grid-column: 1 / -1; } form button { grid-column: 1 / -1; } }
+  .status { margin: 16px 0; color: var(--muted); font-size: .9rem; }
+  .status .err { color: var(--warn); }
+  .badge { display: inline-block; font-size: .75rem; padding: 1px 8px; border-radius: 99px;
+    background: var(--accent-weak); color: var(--accent); margin-right: 4px; white-space: nowrap; }
+  .badge.demo { background: #fff1e0; color: #a14d00; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 12px; }
+  .top { border: 2px solid var(--accent); }
+  .top-label { font-weight: 700; color: var(--accent); font-size: .85rem; margin-bottom: 4px; }
+  .head { display: grid; grid-template-columns: 88px 1fr auto; gap: 14px; align-items: start; }
+  .thumb { width: 88px; height: 88px; border-radius: 8px; background: var(--bg); object-fit: contain; border: 1px solid var(--line); }
+  .title { font-weight: 600; margin: 0 0 4px; overflow-wrap: anywhere; }
+  .meta { color: var(--muted); font-size: .85rem; }
+  .price { text-align: right; white-space: nowrap; }
+  .price b { font-size: 1.3rem; }
+  .score { font-size: .8rem; color: var(--muted); }
+  ul.reasons { margin: 10px 0 0; padding-left: 1.2em; color: var(--good); font-size: .9rem; }
+  details { margin-top: 10px; }
+  summary { cursor: pointer; color: var(--accent); font-size: .9rem; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: .85rem; margin-top: 8px; min-width: 560px; }
+  th, td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; white-space: normal; }
+  tr.best td { background: var(--accent-weak); }
+  a { color: var(--accent); }
+  @media (max-width: 640px) { .head { grid-template-columns: 64px 1fr; } .thumb { width: 64px; height: 64px; } .price { grid-column: 1 / -1; text-align: left; } }
+  .note { color: var(--muted); font-size: .8rem; margin-top: 24px; }
+  .guess { background: var(--card); border: 1px dashed var(--line); border-radius: 10px; padding: 10px 12px; margin: 12px 0; font-size: .88rem; }
+  .guess b { color: var(--accent); }
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+  .freshness { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 8px 0 16px; font-size: .88rem; color: var(--muted); }
+  .btn-sub { background: var(--card); color: var(--accent); border: 1px solid var(--accent); padding: 6px 12px; font-size: .85rem; }
+  .btn-sub.on { background: var(--accent); color: #fff; }
+  .chg { font-size: .8rem; font-weight: 600; white-space: nowrap; }
+  .chg.down { color: var(--good); } .chg.up { color: var(--warn); }
+  .spark { display: block; margin: 4px 0 0 auto; }
+  .spark polyline { fill: none; stroke: var(--accent); stroke-width: 1.5; }
+  .watch-list { margin-bottom: 16px; }
+  .watch-row { display: grid; grid-template-columns: 1fr auto auto; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: .9rem; }
+  .watch-row:last-child { border-bottom: 0; }
+  .watch-row .alert { color: var(--good); font-size: .8rem; }
+  .link-btn { background: none; color: var(--accent); border: 0; padding: 4px 6px; font-weight: 400; cursor: pointer; }
+</style>
+</head>
+<body>
+<main>
+  <h1>比較ナビ</h1>
+  <p class="lead">欲しいものを入力すると、複数のショップから同じ項目（価格・送料・ポイント・評価・レビュー数）を集めて、同じ商品ごとにまとめて比較・おすすめします。うろ覚えの商品名でも推測して探し、ウォッチ登録すると価格を定期的に取り直します。</p>
+
+  <form id="f">
+    <input name="q" placeholder="例：モナルシーダネオ3 wide elite 27cm（うろ覚えでもOK）" required autofocus>
+    <input name="budget" type="number" min="0" step="100" placeholder="予算（円）">
+    <select name="priority">
+      <option value="balance">バランス</option>
+      <option value="price">安さ重視</option>
+      <option value="rating">評価重視</option>
+    </select>
+    <button>比較する</button>
+  </form>
+
+  <div id="watches"></div>
+  <div id="status" class="status"></div>
+  <div id="guess"></div>
+  <div id="freshness"></div>
+  <div id="results"></div>
+
+  <p class="note">実質価格 ＝ 本体価格 ＋ 送料 − ポイント。送料が「別」でAPIから金額が取れない場合は0円として計算し、表に「別」と表示します。価格・在庫は各ショップでご確認ください。</p>
+</main>
+
+<script>
+const $ = (sel) => document.querySelector(sel);
+const yen = (n) => '¥' + Math.round(n).toLocaleString();
+
+function el(tag, attrs = {}, ...children) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === 'class') node.className = v;
+    else if (v != null && v !== false) node.setAttribute(k, v);
+  }
+  for (const c of children.flat()) if (c != null) node.append(c instanceof Node ? c : String(c));
+  return node;
+}
+
+function safeUrl(u) {
+  try { const x = new URL(u); return /^https?:$/.test(x.protocol) ? x.href : null; } catch { return null; }
+}
+
+function offerTable(item) {
+  const rows = item.offers.map((o, i) => el('tr', { class: i === 0 ? 'best' : '' },
+    el('td', {}, safeUrl(o.url) ? el('a', { href: safeUrl(o.url), target: '_blank', rel: 'noopener' }, o.shop || '(ショップ名なし)') : (o.shop || '-'),
+      ' ', el('span', { class: 'badge' }, o.sourceLabel), o.available ? null : el('span', { class: 'badge demo' }, '在庫なし')),
+    el('td', {}, yen(o.price)),
+    el('td', {}, o.shipping === 0 ? '無料' : o.shipping == null ? '別' : yen(o.shipping)),
+    el('td', {}, o.points ? o.points.toLocaleString() + 'pt' : '-'),
+    el('td', {}, el('b', {}, yen(o.effectivePrice))),
+    el('td', {}, o.rating ? `★${o.rating.toFixed(2)}` : '-'),
+    el('td', {}, o.reviewCount.toLocaleString()),
+  ));
+  return el('div', { class: 'table-wrap' }, el('table', {},
+    el('thead', {}, el('tr', {}, ...['ショップ', '本体', '送料', 'ポイント', '実質', '評価', 'レビュー'].map((h) => el('th', {}, h)))),
+    el('tbody', {}, rows)));
+}
+
+const ago = (t) => {
+  const m = Math.round((Date.now() - t) / 60000);
+  return m < 1 ? 'たった今' : m < 60 ? `${m}分前` : m < 1440 ? `${Math.round(m / 60)}時間前` : `${Math.round(m / 1440)}日前`;
+};
+const fmtTime = (t) => new Date(t).toLocaleString('ja-JP', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+
+function priceChange(item) {
+  const c = item.priceChange;
+  if (!c || !c.diff) return null;
+  const down = c.diff < 0;
+  return el('div', { class: 'chg ' + (down ? 'down' : 'up'), title: `${fmtTime(c.since)} 時点 ${yen(c.from)}` },
+    `${down ? '▼' : '▲'}${yen(Math.abs(c.diff))}（前回比）`);
+}
+
+function sparkline(points) {
+  if (!points || points.length < 2) return null;
+  const w = 90, h = 24, prices = points.map((p) => p.price);
+  const min = Math.min(...prices), max = Math.max(...prices), span = max - min || 1;
+  const pts = prices.map((p, i) => `${(i / (prices.length - 1)) * w},${h - 2 - ((p - min) / span) * (h - 4)}`).join(' ');
+  const ns = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(ns, 'svg');
+  svg.setAttribute('width', w); svg.setAttribute('height', h); svg.setAttribute('class', 'spark');
+  svg.setAttribute('aria-label', `価格推移 ${points.length}回分`);
+  const line = document.createElementNS(ns, 'polyline');
+  line.setAttribute('points', pts);
+  const title = document.createElementNS(ns, 'title');
+  title.textContent = points.map((p) => `${fmtTime(p.at)} ${yen(p.price)}`).join('\n');
+  svg.append(title, line);
+  return svg;
+}
+
+function renderGuess(data) {
+  const parts = [];
+  const ai = data.interpretation;
+  if (ai) {
+    parts.push(el('div', {}, 'もしかして：', el('b', {}, ai.product),
+      ai.brand || ai.category ? `（${[ai.brand, ai.category].filter(Boolean).join('／')}）` : ''));
+    if (ai.note) parts.push(el('div', { class: 'meta' }, ai.note));
+  } else if (data.analysis && data.analysis.core && data.analysis.core !== data.query) {
+    parts.push(el('div', {}, '推測した検索語：', el('b', {}, data.analysis.core)));
+  }
+  if (data.analysis && data.analysis.attrs.length) {
+    parts.push(el('div', { class: 'chips' }, '条件：', ...data.analysis.attrs.map((a) => el('span', { class: 'badge' }, a.text))));
+  }
+  if (data.plan && data.plan.length) {
+    parts.push(el('div', { class: 'chips meta' }, '試した検索：',
+      ...data.plan.map((p) => el('span', { class: 'badge' }, `${p.query}（+${p.added}）`))));
+  }
+  const ex = data.excluded || {};
+  if (ex.lowRelevance || ex.attrMismatch) {
+    parts.push(el('div', { class: 'meta' },
+      [ex.lowRelevance ? `関連の薄い ${ex.lowRelevance}件` : '', ex.attrMismatch ? `条件に合わない ${ex.attrMismatch}件` : '']
+        .filter(Boolean).join('・') + 'を除外'));
+  }
+  $('#guess').replaceChildren(parts.length ? el('div', { class: 'guess' }, parts) : '');
+}
+
+function renderFreshness(data) {
+  const refreshBtn = el('button', { class: 'btn-sub', type: 'button' }, '最新に更新');
+  refreshBtn.onclick = () => search({ refresh: true });
+  const watchBtn = el('button', { class: 'btn-sub' + (data.watched ? ' on' : ''), type: 'button' },
+    data.watched ? 'ウォッチ中' : 'ウォッチ登録（定期更新）');
+  watchBtn.onclick = async () => {
+    if (data.watched) return;
+    const fd = new FormData($('#f'));
+    await fetch('/api/watch', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ q: data.query, priority: fd.get('priority'), budget: fd.get('budget') }) });
+    data.watched = true;
+    renderFreshness(data);
+    loadWatches();
+  };
+  $('#freshness').replaceChildren(el('div', { class: 'freshness' },
+    `最終取得：${fmtTime(data.fetchedAt)}（${ago(data.fetchedAt)}${data.cached ? '・保存済みの結果' : ''}）`,
+    refreshBtn, watchBtn));
+}
+
+async function loadWatches() {
+  let data;
+  try { data = await (await fetch('/api/watch')).json(); } catch { return; }
+  if (!data.watches.length) return $('#watches').replaceChildren();
+  const refreshAll = el('button', { class: 'link-btn', type: 'button' }, 'すべて今すぐ更新');
+  refreshAll.onclick = async () => {
+    refreshAll.textContent = '更新中…';
+    await fetch('/api/watch/refresh', { method: 'POST' });
+    loadWatches();
+  };
+  const rows = data.watches.map((w) => {
+    const open = el('button', { class: 'link-btn', type: 'button' }, '開く');
+    open.onclick = () => { $('#f').elements.q.value = w.q; search(); };
+    const del = el('button', { class: 'link-btn', type: 'button' }, '解除');
+    del.onclick = async () => { await fetch('/api/watch?id=' + encodeURIComponent(w.id), { method: 'DELETE' }); loadWatches(); };
+    const alert = w.alerts[0];
+    return el('div', { class: 'watch-row' },
+      el('div', {}, el('b', {}, w.q), el('div', { class: 'meta' },
+        w.lastBest ? `いまの1位 ${yen(w.lastBest.price)}（${w.lastBest.shop}）・` : '', w.lastRunAt ? `更新 ${ago(w.lastRunAt)}` : '未取得'),
+        alert ? el('div', { class: 'alert' }, `▼ ${fmtTime(alert.at)} に ${yen(alert.from)} → ${yen(alert.to)} 値下がり`) : null),
+      open, del);
+  });
+  $('#watches').replaceChildren(el('div', { class: 'card watch-list' },
+    el('div', { class: 'meta' }, `ウォッチ中（${data.intervalMin}分ごとに自動更新） `, refreshAll), rows));
+}
+
+function itemCard(item, rank) {
+  const img = safeUrl(item.image);
+  return el('div', { class: 'card' + (rank === 0 ? ' top' : '') },
+    rank === 0 ? el('div', { class: 'top-label' }, 'いちばんのおすすめ') : null,
+    el('div', { class: 'head' },
+      img ? el('img', { class: 'thumb', src: img, alt: '', loading: 'lazy' }) : el('div', { class: 'thumb' }),
+      el('div', {},
+        el('p', { class: 'title' }, `${rank + 1}. ${item.title}`),
+        el('div', { class: 'meta' },
+          item.rating ? `★${item.rating.toFixed(2)}（${item.reviewCount.toLocaleString()}件）・` : 'レビューなし・',
+          `${item.shopCount}ショップ`, ' ', ...item.sources.map((s) => el('span', { class: 'badge' }, s)))),
+      el('div', { class: 'price' },
+        el('div', { class: 'meta' }, '最安（実質）'), el('b', {}, yen(item.bestOffer.effectivePrice)),
+        priceChange(item),
+        item.isLowestEver ? el('div', {}, el('span', { class: 'badge' }, '記録中の最安値')) : null,
+        item.maxPrice > item.minPrice ? el('div', { class: 'meta' }, `〜${yen(item.maxPrice)}`) : null,
+        sparkline(item.priceHistory),
+        el('div', { class: 'score' }, `おすすめ度 ${item.score}`))),
+    item.reasons.length ? el('ul', { class: 'reasons' }, item.reasons.map((r) => el('li', {}, r))) : null,
+    el('details', rank === 0 ? { open: '' } : {}, el('summary', {}, `ショップ別に比較（${item.offers.length}件）`), offerTable(item)));
+}
+
+function renderStatus(data) {
+  const s = $('#status');
+  s.replaceChildren(
+    `「${data.query}」：${data.totalOffers}件の出品を収集 → ${data.items.length}商品に整理（${data.priority}）`,
+    data.overBudgetCount ? `／予算オーバー ${data.overBudgetCount}商品を除外` : '',
+    el('br'),
+    ...data.sources.map((src) => src.ok
+      ? el('span', { class: 'badge' + (src.demo ? ' demo' : '') }, `${src.label} ${src.count}件`)
+      : el('span', { class: 'err' }, `${src.label}：取得失敗（${src.error}） `)),
+    data.sources.some((x) => x.demo) ? el('div', { class: 'err' }, '※デモデータは架空の商品です。APIキーを設定すると実際のショップから収集します（README参照）。') : '',
+  );
+}
+
+async function search({ refresh = false } = {}) {
+  const form = $('#f');
+  const fd = new FormData(form);
+  const params = new URLSearchParams([...fd].filter(([, v]) => v !== ''));
+  if (!params.get('q')) return;
+  history.replaceState(null, '', '?' + params);
+  if (refresh) params.set('refresh', '1');
+  const btn = form.querySelector('button');
+  btn.disabled = true; btn.textContent = '収集中…';
+  $('#status').textContent = refresh ? '最新の情報を取り直しています…' : '検索語を推測して、各ショップから収集しています…';
+  $('#results').replaceChildren(); $('#guess').replaceChildren(); $('#freshness').replaceChildren();
+  try {
+    const res = await fetch('/api/search?' + params);
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || res.statusText);
+    renderStatus(data);
+    renderGuess(data);
+    renderFreshness(data);
+    $('#results').replaceChildren(...(data.items.length
+      ? data.items.map(itemCard)
+      : [el('div', { class: 'card' }, '条件に合う商品が見つかりませんでした。キーワードや予算を変えてみてください。')]));
+    if (data.watched) loadWatches();
+  } catch (err) {
+    $('#status').replaceChildren(el('span', { class: 'err' }, 'エラー：' + err.message));
+  } finally {
+    btn.disabled = false; btn.textContent = '比較する';
+  }
+}
+
+$('#f').addEventListener('submit', (e) => { e.preventDefault(); search(); });
+loadWatches();
+
+// URLの検索条件を復元（共有リンク用）
+const init = new URLSearchParams(location.search);
+for (const [k, v] of init) { const f = $('#f').elements[k]; if (f) f.value = v; }
+if (init.get('q')) search();
+</script>
+</body>
+</html>

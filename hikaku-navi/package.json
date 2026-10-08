@@ -1,0 +1,17 @@
+{
+  "name": "hikaku-navi",
+  "version": "0.1.0",
+  "private": true,
+  "description": "欲しいものを入力すると複数ショップを同じ項目で収集し、比較・おすすめする比較ナビ",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.132.1"
+  }
+}
