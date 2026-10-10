@@ -21,6 +21,7 @@
 |---|---|
 | ブラウザで動く動画編集ソフト | [video-editor/](video-editor/README.md) |
 | 招待した人だけの写真・動画共有アプリ（iPhoneの容量を使わない） | [photo-share/](photo-share/README.md) |
+| **集客・販売LPテンプレート**（内容を差し替えて、業種ごとのサイトを作る） | [lp-template/](lp-template/README.md) |
 | イバノ TOP ページの実装（Next.js + Framer Motion） | [ibano-site/](ibano-site/README.md) |
 
 ## ワイヤーフレーム（HTML）の見方
