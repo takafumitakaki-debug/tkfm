@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+/*
+  デザイントークン（UI UX Pro Max の Restaurant/Food Service × B2B Service を合成）
+  - 食欲を連想させる深い赤（精肉）＋ 温かい金（沖縄の陽）＋ 生成りの背景
+  - コントラスト 4.5:1 以上を満たす組み合わせのみ使用
+*/
+@theme {
+  --color-primary: #9f1d1d;
+  --color-primary-strong: #7f1515;
+  --color-accent: #a16207;
+  --color-accent-soft: #e0b45a;
+  --color-bg: #fbf7f0;
+  --color-surface: #ffffff;
+  --color-ink: #2a1a14;
+  --color-muted: #6b5a50;
+  --color-line: #e7ddd0;
+  --color-night: #1c1210;
+
+  --font-serif: "Hiragino Mincho ProN", "Yu Mincho", "YuMincho", "Noto Serif JP", serif;
+  --font-sans: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}
